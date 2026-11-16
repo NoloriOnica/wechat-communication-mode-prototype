@@ -30,6 +30,15 @@ const NOTO = "'Noto Sans SC', 'Inter', system-ui, sans-serif";
 export const NavCtx = createContext({ go: () => {}, interactive: false });
 export const useGo = () => useContext(NavCtx).go;
 
+/* ---------- language: 'en' | 'zh' ---------- */
+export const LangCtx = createContext('en');
+export const useLang = () => useContext(LangCtx);
+/** Returns l(en, cn): picks the string for the current language. */
+export function useL() {
+  const zh = useContext(LangCtx) === 'zh';
+  return (en, cn) => (zh ? cn : en);
+}
+
 /** Make an element a prototype hotspot. `to` is a screen id, or a function. */
 export function useHot(to) {
   const { go, interactive } = useContext(NavCtx);
@@ -143,14 +152,10 @@ export function StatusBar() {
   );
 }
 
-/** Two-line label (English + Chinese) used inside pill buttons. */
-function PillLabels({ en, cn, enSize = 18, enLh = 22, enW = 600, cnSize = 13, cnLh = 16, cnColor = C.subCn, color = C.text }) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
-      <T w={enW} s={enSize} lh={enLh} c={color} nowrap>{en}</T>
-      <T f="noto" s={cnSize} lh={cnLh} c={cnColor} nowrap style={{ marginTop: -2 }}>{cn}</T>
-    </div>
-  );
+/** Label used inside pill buttons, in the current language. */
+function PillLabels({ en, cn, enSize = 18, enLh = 22, enW = 600, color = C.text }) {
+  const l = useL();
+  return <T w={enW} s={enSize} lh={enLh} c={color} nowrap>{l(en, cn)}</T>;
 }
 
 export function NavPill({ icon, en, cn, to, iconSize = 26, pad = '6px 14px 6px 10px', height = 52, style, labels }) {
@@ -178,6 +183,7 @@ export function NavPill({ icon, en, cn, to, iconSize = 26, pad = '6px 14px 6px 1
 }
 
 export function NavBar({ title, back, home }) {
+  const l = useL();
   return (
     <div
       style={{
@@ -191,7 +197,7 @@ export function NavBar({ title, back, home }) {
       }}
     >
       <NavPill icon="arrow-left" en="Back" cn="返回" to={back} />
-      <T w={700} s={22} lh={27} nowrap>{title}</T>
+      <T w={700} s={22} lh={27} nowrap>{Array.isArray(title) ? l(...title) : title}</T>
       <NavPill icon="home" en="Home" cn="主页" to={home} />
     </div>
   );
@@ -207,6 +213,7 @@ const BTN = {
 export function Btn({ kind = 'primary', icon, label, cn, w = '100%', h = 76, pl = 24, pr = 24, gap = 16, iconColor, to, style }) {
   const k = BTN[kind];
   const hot = useHot(to);
+  const l = useL();
   return (
     <div
       {...hot}
@@ -226,10 +233,7 @@ export function Btn({ kind = 'primary', icon, label, cn, w = '100%', h = 76, pl 
       }}
     >
       <Icon name={icon} size={30} color={iconColor || k.icon} />
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <T w={600} s={22} lh={27} c={k.fg} nowrap>{label}</T>
-        <T f="noto" s={16} lh={19} c={k.cn} nowrap>{cn}</T>
-      </div>
+      <T w={600} s={22} lh={27} c={k.fg} nowrap>{l(label, cn)}</T>
     </div>
   );
 }
@@ -365,7 +369,7 @@ export function Banner({ type = 'success', title, message, y = 124, h = 77, styl
       <Icon name={ok ? 'check' : 'alert'} size={34} color={ok ? C.white : '#dc6803'} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2, width: ok ? 277 : 273 }}>
         <T w={700} s={20} lh={24} c={ok ? C.white : '#7a2e0e'}>{title}</T>
-        <T f="noto" s={16} lh={19} c={ok ? C.white : '#7a2e0e'}>{message}</T>
+        {message && <T s={17} lh={22} c={ok ? C.white : '#7a2e0e'}>{message}</T>}
       </div>
     </div>
   );
@@ -373,6 +377,7 @@ export function Banner({ type = 'success', title, message, y = 124, h = 77, styl
 
 /* ---------- guide (coach marks) ---------- */
 export function GuideBar({ exit }) {
+  const l = useL();
   return (
     <Abs
       x={0}
@@ -388,10 +393,7 @@ export function GuideBar({ exit }) {
         alignItems: 'center',
       }}
     >
-      <div>
-        <T w={700} s={19} lh={23} c={C.white} nowrap>Guide: Send a message</T>
-        <T f="noto" s={14} lh={17} c="#cdefd9" nowrap>正在教：怎么发消息</T>
-      </div>
+      <T w={700} s={19} lh={23} c={C.white} nowrap>{l('Guide: Send a message', '正在教：怎么发消息')}</T>
       <NavPill
         icon="x"
         iconSize={22}
@@ -400,20 +402,21 @@ export function GuideBar({ exit }) {
         to={exit}
         pad="8px 14px 8px 10px"
         height={49}
-        labels={{ enSize: 17, enLh: 21, cnSize: 12, cnLh: 14, cnColor: C.sub }}
+        labels={{ enSize: 17, enLh: 21 }}
       />
     </Abs>
   );
 }
 
 export function ReadAloud({ style }) {
+  const l = useL();
   return (
     <div
       style={{
         display: 'flex',
         alignItems: 'center',
         gap: 6,
-        width: 133,
+        width: l(133, 88),
         height: 36,
         boxSizing: 'border-box',
         padding: '6px 12px 6px 10px',
@@ -424,12 +427,13 @@ export function ReadAloud({ style }) {
       }}
     >
       <Icon name="volume" size={22} color={C.greenIcon} />
-      <T w={600} s={15} lh={18} nowrap>Read aloud</T>
+      <T w={600} s={15} lh={18} nowrap>{l('Read aloud', '朗读')}</T>
     </div>
   );
 }
 
 export function GuideCard({ y, step, title, cn, close, next }) {
+  const l = useL();
   return (
     <Abs
       x={16}
@@ -447,16 +451,15 @@ export function GuideCard({ y, step, title, cn, close, next }) {
       }}
     >
       <div style={{ height: 36, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ width: 183, height: 29, boxSizing: 'border-box', padding: '5px 12px', background: C.greenLight, borderRadius: 14 }}>
-          <T f="noto" w={500} s={16} lh={19} c={C.greenDark} nowrap>{step}</T>
+        <div style={{ height: 29, boxSizing: 'border-box', padding: '5px 12px', background: C.greenLight, borderRadius: 14 }}>
+          <T w={500} s={16} lh={19} c={C.greenDark} nowrap>{l(...step)}</T>
         </div>
         <ReadAloud />
       </div>
-      <T w={700} s={22} lh={27}>{title}</T>
-      <T f="noto" s={18} lh={22} c={C.sub}>{cn}</T>
+      <T w={700} s={22} lh={27}>{l(title, cn)}</T>
       <div style={{ height: 20, display: 'flex', alignItems: 'center', gap: 6 }}>
         <Icon name="pointer" size={20} color="#b08800" />
-        <T w={500} s={15} lh={18} c="#7a5c00" nowrap>Tap the glowing button, or press Next</T>
+        <T w={500} s={15} lh={18} c="#7a5c00" nowrap>{l('Tap the glowing button, or press Next', '点发光的按钮，或按“下一步”')}</T>
       </div>
       <div style={{ display: 'flex', gap: 10 }}>
         <Btn kind="neutral" icon="x" label="Close" cn="关闭" w={156} h={64} to={close} />

@@ -1,7 +1,7 @@
 // The 18 frames from Figma page "Communication Mode (Our Design)".
 // Each screen = a base page + overlay. `links` are the prototype hotspots.
 import {
-  C, T, Icon, Photo, Abs, Btn, Dim, Sheet, Banner, GuideBar, GuideCard, Glow, Pointer, useHot, stroke,
+  C, T, Icon, Photo, Abs, Btn, Dim, Sheet, Banner, GuideBar, GuideCard, Glow, Pointer, useHot, useL, stroke,
 } from '../components/ui.jsx';
 import {
   HomeBase, ContactBase, ChatBase, ContactTile, ContactActions, InputArea, PHOTOS, QUICK_REPLIES,
@@ -31,23 +31,23 @@ function S03() {
 
 function S04() {
   const bars = [10, 18, 30, 44, 26, 52, 36, 20, 40, 56, 30, 16, 34, 48, 24, 12, 28, 40, 18, 10];
+  const l = useL();
   return (
     <ContactBase>
       <Dim op={0.45} />
       <Sheet y={421} pad="22px 24px 34px 24px" gap={16} align="center">
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, height: 27 }}>
           <div className="cm-rec-dot" style={{ width: 14, height: 14, borderRadius: 7, background: '#e5484d' }} />
-          <T w={700} s={22} lh={27} nowrap>Recording to Daughter…</T>
+          <T w={700} s={22} lh={27} nowrap>{l('Recording to Daughter…', '正在录音（发给女儿）')}</T>
         </div>
-        <T f="noto" s={16} lh={19} c={C.sub} nowrap>正在录音（发给女儿）</T>
         <T w={700} s={60} lh={73} nowrap>0:12</T>
         <div className="cm-wave" style={{ height: 56, display: 'flex', alignItems: 'center', gap: 5 }}>
           {bars.map((h, i) => (
             <div key={i} style={{ width: 6, height: h, borderRadius: 3, background: C.green, animationDelay: `${(i % 7) * 0.11}s` }} />
           ))}
         </div>
-        <T f="noto" s={18} lh={22} c={C.sub} align="center" nowrap>
-          {'Speak now. Tap “Send” when you finish.\n说完请按“发送”。'}
+        <T s={18} lh={22} c={C.sub} align="center" nowrap>
+          {l('Speak now. Tap “Send” when you finish.', '请说话，说完请按“发送”。')}
         </T>
         <div style={{ display: 'flex', gap: 12 }}>
           <Btn kind="neutral" icon="x" label="Cancel" cn="取消" w={167} to="02" />
@@ -59,6 +59,7 @@ function S04() {
 }
 
 function S05() {
+  const l = useL();
   return (
     <ContactBase>
       <Dim op={0.5} />
@@ -79,8 +80,7 @@ function S05() {
       >
         <Photo src={PHOTOS.daughter} size={104} />
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-          <T w={700} s={26} lh={31} nowrap>Video call Daughter?</T>
-          <T f="noto" s={18} lh={22} c={C.sub} nowrap>给女儿打视频电话？</T>
+          <T w={700} s={26} lh={31} nowrap>{l('Video call Daughter?', '给女儿打视频电话？')}</T>
         </div>
         <Btn kind="primary" icon="video" label="Call" cn="拨打" w={305} />
         <Btn kind="neutral" icon="x" label="Cancel" cn="取消" w={305} to="02" />
@@ -90,14 +90,16 @@ function S05() {
 }
 
 function S06() {
+  const l = useL();
   return (
     <ChatBase messages={[...CHAT_FULL, 'voiceOut']} links={CHAT}>
-      <Banner title="Sent to Daughter" message="已发送给女儿" />
+      <Banner title={l('Sent to Daughter', '已发送给女儿')} />
     </ChatBase>
   );
 }
 
 function S07() {
+  const l = useL();
   return (
     <ChatBase messages={[...CHAT_FULL, 'sundayFailed']} links={CHAT}>
       <Abs
@@ -118,8 +120,8 @@ function S07() {
         <Banner
           type="error"
           h={119}
-          title="Message not sent"
-          message={'No internet. Check Wi-Fi, then tap Try again.\n没有网络，请检查 Wi-Fi 后重试。'}
+          title={l('Message not sent', '消息没有发出')}
+          message={l('No internet. Check Wi-Fi, then tap Try again.', '没有网络，请检查 Wi-Fi 后重试。')}
         />
         <Btn kind="primary" icon="retry" label="Try again" cn="重试" w={361} to="06" />
       </Abs>
@@ -149,13 +151,13 @@ function MiniHome() {
 }
 
 function S08() {
+  const l = useL();
   return (
     <HomeBase>
       <Dim op={0.45} />
       <Sheet y={347} pad="22px 24px 34px 24px" gap={16}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <T w={700} s={26} lh={31} nowrap>Ask Son for help?</T>
-          <T f="noto" s={18} lh={22} c={C.sub} nowrap>请儿子帮忙？</T>
+          <T w={700} s={26} lh={31} nowrap>{l('Ask Son for help?', '请儿子帮忙？')}</T>
         </div>
         <div
           style={{
@@ -172,10 +174,10 @@ function S08() {
           <div style={{ width: 228, display: 'flex', flexDirection: 'column', gap: 6 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Photo src={PHOTOS.son} size={32} />
-              <T f="noto" w={500} s={17} lh={20} nowrap>To: Son  儿子</T>
+              <T w={500} s={17} lh={20} nowrap>{l('To: Son', '发给：儿子')}</T>
             </div>
-            <T f="noto" s={16} lh={19}>
-              {'“Hi, I need help with WeChat. Here is my screen.”\n“我需要帮忙使用微信，这是我的屏幕。”'}
+            <T s={17} lh={22}>
+              {l('“Hi, I need help with WeChat. Here is my screen.”', '“我需要帮忙使用微信，这是我的屏幕。”')}
             </T>
           </div>
         </div>
@@ -187,6 +189,7 @@ function S08() {
 }
 
 function S09() {
+  const l = useL();
   return (
     <ContactBase>
       <Dim op={0.6} />
@@ -210,10 +213,9 @@ function S09() {
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, height: 24 }}>
           <Icon name="bulb" size={24} color={C.greenIcon} />
-          <T f="noto" w={500} s={16} lh={19} c={C.greenDark} nowrap>Step 1 of 2  ·  第1步，共2步</T>
+          <T w={500} s={16} lh={19} c={C.greenDark} nowrap>{l('Step 1 of 2', '第1步，共2步')}</T>
         </div>
-        <T w={700} s={21} lh={25}>Tap “Video Call” to see Daughter on your screen.</T>
-        <T f="noto" s={17} lh={20} c={C.sub}>点“视频通话”，就能在屏幕上看见女儿。</T>
+        <T w={700} s={21} lh={25}>{l('Tap “Video Call” to see Daughter on your screen.', '点“视频通话”，就能在屏幕上看见女儿。')}</T>
         <div style={{ display: 'flex', gap: 10 }}>
           <Btn kind="neutral" icon="x" label="Close" cn="关闭" w={152} h={64} to="02" />
           <Btn kind="primary" icon="check" label="Next" cn="下一步" w={152} h={64} to="05" />
@@ -235,6 +237,7 @@ const TOPICS = [
 
 function HelpTopic({ icon, en, cn, selected, to }) {
   const hot = useHot(to);
+  const l = useL();
   return (
     <div
       {...hot}
@@ -266,8 +269,7 @@ function HelpTopic({ icon, en, cn, selected, to }) {
         <Icon name={icon} size={26} color={C.greenIcon} />
       </div>
       <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
-        <T w={600} s={20} lh={24} nowrap>{en}</T>
-        <T f="noto" s={15} lh={18} c={C.sub} nowrap>{cn}</T>
+        <T w={600} s={20} lh={24} nowrap>{l(en, cn)}</T>
       </div>
       <Icon name="chevron-right" size={26} color="#9a9a9a" style={{ position: 'relative', zIndex: 1 }} />
     </div>
@@ -276,13 +278,14 @@ function HelpTopic({ icon, en, cn, selected, to }) {
 
 function S10() {
   const sayWhat = useHot(null);
+  const l = useL();
   return (
     <HomeBase>
       <Dim op={0.45} to="01" />
       <Sheet y={117} pad="22px 24px 30px 24px" gap={12}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <T w={700} s={24} lh={29} nowrap>What do you need help with?</T>
-          <T f="noto" s={16} lh={19} c={C.sub} nowrap>需要什么帮助？点一项，我们一步一步教你。</T>
+          <T w={700} s={24} lh={29} nowrap>{l('What do you need help with?', '需要什么帮助？')}</T>
+          <T s={16} lh={19} c={C.sub} nowrap>{l('Pick one and we will show you step by step.', '点一项，我们一步一步教你。')}</T>
         </div>
         <div
           {...sayWhat}
@@ -299,7 +302,7 @@ function S10() {
           }}
         >
           <Icon name="mic" size={26} color={C.greenIcon} />
-          <T f="noto" w={500} s={16} lh={19} c="#444444" nowrap>Say what you need  ·  说出你的问题</T>
+          <T w={500} s={16} lh={19} c="#444444" nowrap>{l('Say what you need', '说出你的问题')}</T>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {TOPICS.map((t, i) => (
@@ -307,7 +310,7 @@ function S10() {
           ))}
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <Btn kind="secondary" icon="users" label="Ask family" cn="请家人帮忙" w={170} pl={14} gap={10} to="08" />
+          <Btn kind="secondary" icon="users" label="Ask family" cn="家人帮忙" w={170} pl={14} gap={10} to="08" />
           <Btn kind="neutral" icon="x" label="Close" cn="关闭" w={166} pl={14} gap={10} to="01" />
         </div>
       </Sheet>
@@ -328,7 +331,7 @@ function S11() {
       <GuideBar exit="01" />
       <GuideCard
         y={380}
-        step="Step 1 of 3 · 第1/3步"
+        step={['Step 1 of 3', '第1步，共3步']}
         title="Tap the photo of the person you want to message."
         cn="点一下你想发消息的人的照片。"
         close="01"
@@ -348,7 +351,7 @@ function S12() {
       <Glow x={16} y={375} w={361} h={92} r={22} />
       <Pointer x={279} y={433} />
       <GuideBar exit="02" />
-      <GuideCard y={503} step="Step 2 of 3 · 第2/3步" title="Tap “Send Message”." cn="点“发消息”。" close="02" next="13" />
+      <GuideCard y={503} step={['Step 2 of 3', '第2步，共3步']} title="Tap “Send Message”." cn="点“发消息”。" close="02" next="13" />
     </ContactBase>
   );
 }
@@ -365,9 +368,9 @@ function S13() {
       <GuideBar exit="03" />
       <GuideCard
         y={325}
-        step="Step 3 of 3 · 第3/3步"
+        step={['Step 3 of 3', '第3步，共3步']}
         title="Type your message, or tap “Speak to type”. Then tap “Send”."
-        cn={'输入文字，或点“说话打字”，然后\n点“发送”。'}
+        cn="输入文字，或点“说话打字”，然后点“发送”。"
         close="03"
         next="14"
       />
@@ -376,6 +379,7 @@ function S13() {
 }
 
 function S14() {
+  const l = useL();
   return (
     <ChatBase messages={[...CHAT_FULL, 'sunday']}>
       <Dim op={0.5} />
@@ -407,13 +411,12 @@ function S14() {
         >
           <Icon name="check" size={56} color={C.green} />
         </div>
-        <T w={700} s={30} lh={36} nowrap>Well done!</T>
-        <T w={500} s={20} lh={24} align="center" nowrap>You sent a message by yourself.</T>
-        <T f="noto" s={18} lh={22} c={C.sub} nowrap>做得好！你自己发出了消息。</T>
+        <T w={700} s={30} lh={36} nowrap>{l('Well done!', '做得好！')}</T>
+        <T w={500} s={20} lh={24} align="center" nowrap>{l('You sent a message by yourself.', '你自己发出了消息。')}</T>
         <Btn kind="primary" icon="check" label="Done" cn="完成" w={305} to="03" />
         <Btn kind="secondary" icon="retry" label="Practise again" cn="再练一次" w={305} to="11" />
-        <T f="noto" s={15} lh={18} c={C.sub} align="center" nowrap>
-          {'You can find this guide again under Help.\n在“帮助”里可以再看这个教学。'}
+        <T s={15} lh={18} c={C.sub} align="center" nowrap>
+          {l('You can find this guide again under Help.', '在“帮助”里可以再看这个教学。')}
         </T>
       </Abs>
     </ChatBase>
@@ -434,9 +437,10 @@ function S16() {
 }
 
 function S17() {
+  const l = useL();
   return (
     <ChatBase messages={['date', 'dinner', 'okSent']} input="quick" links={QUICK}>
-      <Banner title="Sent to Daughter" message="已发送给女儿" />
+      <Banner title={l('Sent to Daughter', '已发送给女儿')} />
     </ChatBase>
   );
 }
@@ -461,10 +465,11 @@ function SquareBtn({ icon, color = C.text, bg = C.chip, w = 48, h = 48, size = 2
 }
 
 function S18() {
+  const l = useL();
   return (
     <Screen>
       <StatusBar />
-      <NavBar title="Quick replies" back="15" home="01" />
+      <NavBar title={['Quick replies', '快捷回复']} back="15" home="01" />
       <div
         style={{
           boxSizing: 'border-box',
@@ -475,8 +480,8 @@ function S18() {
         }}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <T w={700} s={24} lh={29} nowrap>Your quick replies</T>
-          <T f="noto" s={16} lh={19} c={C.sub} nowrap>我的快捷回复 · Shown in every chat, up to 6</T>
+          <T w={700} s={24} lh={29} nowrap>{l('Your quick replies', '我的快捷回复')}</T>
+          <T s={16} lh={19} c={C.sub} nowrap>{l('Shown in every chat, up to 6', '在每个聊天中显示，最多6条')}</T>
         </div>
         {QUICK_REPLIES.map((r, i) => (
           <div
@@ -497,14 +502,13 @@ function S18() {
               <SquareBtn icon="chevron-down" h={40} color={i === QUICK_REPLIES.length - 1 ? '#c4c4c4' : C.text} />
             </div>
             <div style={{ flex: 1 }}>
-              <T w={600} s={20} lh={24} nowrap>{r.en}</T>
-              <T f="noto" s={15} lh={18} c={C.sub} nowrap>{r.cn}</T>
+              <T w={600} s={20} lh={24} nowrap>{l(r.en, r.cn)}</T>
             </div>
             <SquareBtn icon="pencil" />
             <SquareBtn icon="trash" color="#d92d20" bg="#fdecec" />
           </div>
         ))}
-        <T f="noto" s={16} lh={19} c={C.sub} nowrap>4 of 6 replies  ·  已有4条，最多6条</T>
+        <T s={16} lh={19} c={C.sub} nowrap>{l('4 of 6 replies', '已有4条，最多6条')}</T>
         <Btn kind="secondary" icon="plus" label="Add a reply" cn="添加回复" w={361} />
       </div>
     </Screen>
@@ -524,7 +528,7 @@ export const SCREENS = {
   '09': { C: S09, title: '“Show me how” guidance', refs: 'US7 · F4 · FR-4.1 (Should)', caption: 'Optional step-by-step help, shown only when the user taps “Show me how”. The current step is highlighted and the guide can be closed at any time.' },
   '10': { C: S10, title: 'Help menu', refs: 'US24 (Mr Ma) · Help button on Home', caption: 'Tapping Help opens a list of everyday tasks written as the user would say them. Picking one starts a short guide. Users can also say what they need, or ask family for help (screen 08).' },
   '11': { C: S11, title: 'Guide step 1 – pick a person', refs: 'US24 · coach mark on Home', caption: 'The screen dims and only the Daughter photo glows. A pointing hand shows exactly where to tap. A green bar at the top shows the guide is on and can be exited at any time.' },
-  '12': { C: S12, title: 'Guide step 2 – choose “Send Message”', refs: 'US24 · coach mark on contact page', caption: 'Only the Send Message button is highlighted, so the user is not distracted by the other options. Each step gives one instruction in English and Chinese, with Read aloud.' },
+  '12': { C: S12, title: 'Guide step 2 – choose “Send Message”', refs: 'US24 · coach mark on contact page', caption: 'Only the Send Message button is highlighted, so the user is not distracted by the other options. Each step gives one instruction at a time, with Read aloud.' },
   '13': { C: S13, title: 'Guide step 3 – type and send', refs: 'US24 · coach mark on chat', caption: 'The message box and Send button are highlighted. The guide explains both ways to write a message: typing, or speaking with “Speak to type”.' },
   '14': { C: S14, title: 'Guide finished', refs: 'US24 · positive feedback', caption: 'The guide ends with clear praise and the result (“You sent a message”). Users can practise again, and are told the guide is always available under Help.' },
   '15': { C: S15, title: 'Chat with quick replies', refs: 'US25 · FR-24, FR-26', caption: 'Four large reply buttons sit above the message box, so a user who finds typing hard can answer in two taps. “Edit” opens the list of replies.' },
@@ -532,3 +536,26 @@ export const SCREENS = {
   '17': { C: S17, title: 'Quick reply sent', refs: 'US26 · FR-25, FR-17', caption: 'The reply appears in the chat and the usual “Sent to Daughter” banner confirms it worked, just like a typed message.' },
   '18': { C: S18, title: 'Edit quick replies (Settings)', refs: 'US27 · FR-27', caption: 'The user or a family helper can add, edit, remove and reorder replies (up to 6). Reordering uses Up / Down buttons instead of dragging, which is hard with a hand tremor.' },
 };
+
+/* Chinese titles, captions and (where the English has words) refs */
+const CN = {
+  '01': ['沟通模式主页', '家人照片固定在首页；底部有四个固定、带文字的操作；在“设置”里可以编辑联系人或切换回普通微信。'],
+  '02': ['联系人页面', '点一下照片，就会出现三个带文字的大按钮。“返回”和“主页”始终在同一位置；“帮助”固定在角落。'],
+  '03': ['大字聊天', '消息文字更大，用清楚的“说话打字”代替小图标；收到的消息可以“朗读”或“转文字”。'],
+  '04': ['录语音', '点一下开始，点“发送”结束，不用一直按住（取代微信的按住说话）。有计时器和大大的“取消”按钮。'],
+  '05': ['通话确认', '从主页点两下就能视频通话。带照片和名字的确认页可防止误拨；点“取消”返回联系人页面，不会拨出电话。'],
+  '06': ['“已发送”提示', '发送后，绿色横幅“已发送给女儿”至少显示3秒，并伴有短暂振动，让用户知道发送成功。'],
+  '07': ['简单易懂的错误提示', '错误提示用简单的话，并给出一个清楚的下一步（“重试”）。没有错误代码或专业术语。'],
+  '08': ['请家人帮忙', '点一下“帮助”，就会准备一条附有当前屏幕截图的消息。用户点“发送求助”之前不会发出任何内容。'],
+  '09': ['“教我用”指导', '可选的分步帮助，只在用户点“教我用”时显示。当前步骤会被高亮，随时可以关闭教学。'],
+  '10': ['帮助菜单', '点“帮助”会打开日常任务列表，用用户自己的话来描述。选一项就会开始简短的教学。用户也可以说出需求，或请家人帮忙（页面 08）。', 'US24（马先生）· 主页上的帮助按钮'],
+  '11': ['教学第1步：选择联系人', '屏幕变暗，只有女儿的照片在发光。手指图标指出要点的位置。顶部的绿色横条表示正在教学，随时可以退出。', 'US24 · 主页上的教学提示'],
+  '12': ['教学第2步：选择“发消息”', '只高亮“发消息”按钮，避免用户被其他选项分心。每一步只给一个提示，并可以朗读。', 'US24 · 联系人页面上的教学提示'],
+  '13': ['教学第3步：输入并发送', '输入框和“发送”按钮被高亮。教学说明两种写消息的方法：打字，或用“说话打字”。', 'US24 · 聊天页面上的教学提示'],
+  '14': ['教学完成', '教学最后给予明确的鼓励和结果（“你发出了消息”）。用户可以再练一次，并知道在“帮助”里随时能找到这个教学。', 'US24 · 正面反馈'],
+  '15': ['带快捷回复的聊天', '输入框上方有四个大的回复按钮，打字困难的用户点两下就能回复。点“编辑”可以打开回复列表。'],
+  '16': ['选好回复，确认后发送', '点“好的”只会把它放进输入框（深色文字）。用户仍可以修改或清除，点“发送”之前不会发出。'],
+  '17': ['快捷回复已发送', '回复出现在聊天中，和打字发送的消息一样，会显示“已发送给女儿”横幅确认。'],
+  '18': ['编辑快捷回复（设置）', '用户或家人可以添加、编辑、删除和排序回复（最多6条）。排序用“上移/下移”按钮代替拖动，手抖的用户也能轻松操作。'],
+};
+for (const id in CN) [SCREENS[id].titleCn, SCREENS[id].captionCn, SCREENS[id].refsCn = SCREENS[id].refs] = CN[id];

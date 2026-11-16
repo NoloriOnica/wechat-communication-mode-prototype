@@ -1,12 +1,13 @@
-import { useCallback, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { SCENARIOS, ALL_SCREENS, findScenario } from './scenarios.js';
 import { SCREENS } from './screens/screens.jsx';
 import { LiveScreen, ScreenThumb, useViewport, FRAME } from './Phone.jsx';
+import { LangCtx, useL } from './components/ui.jsx';
 
 /* ---------------- hash routing: #/play/<scenario>/<screen> ---------------- */
 function parseHash() {
   const [, view, sid, screen] = window.location.hash.replace(/^#/, '').split('/');
-  // #/frame/<id> renders one bare frame at 1x (used for pixel comparison with Figma exports)
+  // #/frame/<id> renders one bare frame at 1x
   if (view === 'frame' && SCREENS[sid]) return { view: 'frame', screen: sid };
   if (view === 'play' && findScenario(sid)) {
     const sc = findScenario(sid);
@@ -28,40 +29,91 @@ function useRoute() {
   return [route, nav];
 }
 
+/* ---------------- language: English or Chinese, remembered between visits ---------------- */
+const SetLangCtx = createContext(() => {});
+
+function useLangState() {
+  const [lang, setLang] = useState(() => {
+    // ?lang=zh or ?lang=en in the URL wins, otherwise the last choice
+    const q = new URLSearchParams(window.location.search).get('lang');
+    if (q === 'zh' || q === 'en') return q;
+    try {
+      return localStorage.getItem('lang') === 'zh' ? 'zh' : 'en';
+    } catch {
+      return 'en';
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem('lang', lang);
+    } catch {
+      /* storage unavailable */
+    }
+    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+    document.title = lang === 'zh' ? '微信沟通模式 – MVP 原型' : 'WeChat Communication Mode – MVP prototype';
+  }, [lang]);
+  return [lang, setLang];
+}
+
+function LangSwitch({ dark }) {
+  const lang = useContext(LangCtx);
+  const setLang = useContext(SetLangCtx);
+  return (
+    <div className={`lang-switch${dark ? ' dark' : ''}`} role="group" aria-label="Language / 语言">
+      <button className={lang === 'en' ? 'on' : ''} aria-pressed={lang === 'en'} onClick={() => setLang('en')}>
+        EN
+      </button>
+      <button className={lang === 'zh' ? 'on' : ''} aria-pressed={lang === 'zh'} onClick={() => setLang('zh')}>
+        中文
+      </button>
+    </div>
+  );
+}
+
 export default function App() {
   const [route, nav] = useRoute();
+  const [lang, setLang] = useLangState();
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [route.view, route.sid]);
-  if (route.view === 'frame') return <ScreenThumb id={route.screen} scale={1} />;
-  if (route.view === 'play') return <Player sid={route.sid} screen={route.screen} nav={nav} />;
-  return <Start nav={nav} />;
+  let view;
+  if (route.view === 'frame') view = <ScreenThumb id={route.screen} scale={1} />;
+  else if (route.view === 'play') view = <Player sid={route.sid} screen={route.screen} nav={nav} />;
+  else view = <Start nav={nav} />;
+  return (
+    <SetLangCtx.Provider value={setLang}>
+      <LangCtx.Provider value={lang}>{view}</LangCtx.Provider>
+    </SetLangCtx.Provider>
+  );
 }
 
 /* ================================ Start ================================ */
 function Start({ nav }) {
+  const l = useL();
   const open = (sid, screen) => nav({ view: 'play', sid, screen: screen || findScenario(sid).steps[0] });
   return (
     <div className="start">
-      <header className="start-hero">
+      <div className="start-top">
         <div className="brand">
           <span className="brand-dot" />
-          SC4025 Group 5 · MVP prototype
+          {l('SC4025 Group 5 · MVP prototype', 'SC4025 第5组 · MVP 原型')}
         </div>
-        <h1>
-          WeChat <em>Communication Mode</em>
-        </h1>
+        <LangSwitch />
+      </div>
+      <header className="start-hero">
+        <h1>{l(<>WeChat <em>Communication Mode</em></>, <>微信<em>沟通模式</em></>)}</h1>
         <p className="lede">
-          An elderly-friendly, communication-first interface. Labels in English and Simplified Chinese. Pick a scenario
-          to walk through it, and tap the real buttons on the phone to move between screens.
+          {l(
+            'An elderly-friendly, communication-first interface. Pick a scenario to walk through it, and tap the real buttons on the phone to move between screens.',
+            '一个适合长辈、以沟通为主的界面。选择一个场景开始演示，点手机上的按钮即可切换页面。',
+          )}
         </p>
-        <p className="lede-cn">适合长辈的沟通模式 · 选择一个场景开始演示</p>
       </header>
 
       <section>
         <div className="section-head">
-          <h2>Scenarios</h2>
-          <span>{SCENARIOS.length} cases</span>
+          <h2>{l('Scenarios', '场景')}</h2>
+          <span>{l(`${SCENARIOS.length} cases`, `共 ${SCENARIOS.length} 个场景`)}</span>
         </div>
         <div className="cards">
           {SCENARIOS.map((s, i) => (
@@ -74,10 +126,9 @@ function Start({ nav }) {
                 ))}
               </div>
               <div className="card-body">
-                <div className="card-num">Case {i + 1}</div>
-                <h3>{s.title}</h3>
-                <div className="card-cn">{s.cn}</div>
-                <p>{s.summary}</p>
+                <div className="card-num">{l(`Case ${i + 1}`, `场景 ${i + 1}`)}</div>
+                <h3>{l(s.title, s.cn)}</h3>
+                <p>{l(s.summary, s.summaryCn)}</p>
                 <div className="card-path">
                   {s.steps.map((id, k) => (
                     <span key={id}>
@@ -94,8 +145,8 @@ function Start({ nav }) {
 
       <section>
         <div className="section-head">
-          <h2>All screens</h2>
-          <span>18 screens</span>
+          <h2>{l('All screens', '全部页面')}</h2>
+          <span>{l('18 screens', '共 18 个页面')}</span>
         </div>
         <div className="gallery">
           {ALL_SCREENS.steps.map((id) => (
@@ -104,20 +155,23 @@ function Start({ nav }) {
                 <ScreenThumb id={id} scale={0.3} />
               </div>
               <div className="g-label">
-                <b>{id}</b> {SCREENS[id].title}
+                <b>{id}</b> {l(SCREENS[id].title, SCREENS[id].titleCn)}
               </div>
             </button>
           ))}
         </div>
       </section>
 
-      <footer className="start-foot">Linked to PRD Section 4.1 and user stories Section 4.2.</footer>
+      <footer className="start-foot">
+        {l('Linked to PRD Section 4.1 and user stories Section 4.2.', '对应 PRD 第 4.1 节和用户故事第 4.2 节。')}
+      </footer>
     </div>
   );
 }
 
 /* ================================ Player ================================ */
 function Player({ sid, screen, nav }) {
+  const l = useL();
   const sc = findScenario(sid);
   const vp = useViewport();
   const mobile = vp.w <= 820;
@@ -147,7 +201,13 @@ function Player({ sid, screen, nav }) {
   });
 
   const meta = SCREENS[screen];
-  const hint = sc.hints[screen];
+  const hint = l(sc.hints, sc.hintsCn)[screen];
+  const hotToggle = (
+    <label className="hot-toggle">
+      <input type="checkbox" checked={showHot} onChange={(e) => setShowHot(e.target.checked)} />{' '}
+      {l('Show tappable areas', '显示可点击区域')}
+    </label>
+  );
 
   if (mobile) {
     const bar = 64;
@@ -158,33 +218,31 @@ function Player({ sid, screen, nav }) {
           <LiveScreen id={screen} go={go} scale={scale} showHotspots={showHot} />
         </div>
         <div className="m-bar" style={{ height: bar }}>
-          <button className="m-btn" onClick={() => setMenu(true)} aria-label="Scenario steps">
+          <button className="m-btn" onClick={() => setMenu(true)} aria-label={l('Scenario steps', '场景步骤')}>
             <MenuIcon />
           </button>
-          <button className="m-btn" onClick={prev} disabled={pos === 0} aria-label="Previous screen">
+          <button className="m-btn" onClick={prev} disabled={pos === 0} aria-label={l('Previous screen', '上一页')}>
             ‹
           </button>
           <div className="m-title">
             <span>
-              {idx >= 0 ? `${pos + 1} / ${sc.steps.length}` : 'Off path'} · {screen}
+              {idx >= 0 ? `${pos + 1} / ${sc.steps.length}` : l('Off path', '不在路径上')} · {screen}
             </span>
-            {meta.title}
+            {l(meta.title, meta.titleCn)}
           </div>
-          <button className="m-btn" onClick={next} disabled={pos === sc.steps.length - 1} aria-label="Next screen">
+          <button className="m-btn" onClick={next} disabled={pos === sc.steps.length - 1} aria-label={l('Next screen', '下一页')}>
             ›
           </button>
+          <LangSwitch dark />
         </div>
         {menu && (
           <div className="m-sheet-wrap" onClick={() => setMenu(false)}>
             <div className="m-sheet" onClick={(e) => e.stopPropagation()}>
               <button className="back-link" onClick={home}>
-                ← All scenarios
+                {l('← All scenarios', '← 全部场景')}
               </button>
               <StepPanel sc={sc} screen={screen} go={(id) => (go(id), setMenu(false))} hint={hint} meta={meta} />
-              <label className="hot-toggle">
-                <input type="checkbox" checked={showHot} onChange={(e) => setShowHot(e.target.checked)} /> Show tappable
-                areas
-              </label>
+              {hotToggle}
             </div>
           </div>
         )}
@@ -199,14 +257,15 @@ function Player({ sid, screen, nav }) {
     <div className="player">
       <div className="topbar">
         <button className="back-link" onClick={home}>
-          ← All scenarios
+          {l('← All scenarios', '← 全部场景')}
         </button>
         <div className="topbar-title">
-          WeChat Communication Mode <span>· prototype</span>
+          {l('WeChat Communication Mode', '微信沟通模式')} <span>· {l('prototype', '原型')}</span>
         </div>
-        <label className="hot-toggle">
-          <input type="checkbox" checked={showHot} onChange={(e) => setShowHot(e.target.checked)} /> Show tappable areas
-        </label>
+        <div className="topbar-right">
+          {hotToggle}
+          <LangSwitch />
+        </div>
       </div>
       <div className="player-main">
         <aside className="side">
@@ -220,7 +279,7 @@ function Player({ sid, screen, nav }) {
           </div>
           <div className="controls">
             <button className="ctl" onClick={prev} disabled={pos === 0}>
-              ‹ Back
+              {l('‹ Back', '‹ 上一步')}
             </button>
             <div className="dots">
               {sc.steps.map((id, k) => (
@@ -228,12 +287,12 @@ function Player({ sid, screen, nav }) {
                   key={id}
                   className={`dot${id === screen ? ' on' : ''}${k < pos ? ' done' : ''}`}
                   onClick={() => go(id)}
-                  aria-label={`Screen ${id}`}
+                  aria-label={l(`Screen ${id}`, `页面 ${id}`)}
                 />
               ))}
             </div>
             <button className="ctl primary" onClick={next} disabled={pos === sc.steps.length - 1}>
-              Next ›
+              {l('Next ›', '下一步 ›')}
             </button>
           </div>
         </div>
@@ -243,21 +302,22 @@ function Player({ sid, screen, nav }) {
 }
 
 function StepPanel({ sc, screen, go, hint, meta }) {
+  const l = useL();
+  const hints = l(sc.hints, sc.hintsCn);
   return (
     <div className="steps">
       <div className="steps-head">
-        <h2>{sc.title}</h2>
-        <div className="steps-cn">{sc.cn}</div>
-        <p>{sc.summary}</p>
+        <h2>{l(sc.title, sc.cn)}</h2>
+        <p>{l(sc.summary, sc.summaryCn)}</p>
       </div>
       <ol>
-        {sc.steps.map((id, k) => (
+        {sc.steps.map((id) => (
           <li key={id}>
             <button className={`step${id === screen ? ' on' : ''}`} onClick={() => go(id)}>
               <span className="step-n">{id}</span>
               <span className="step-t">
-                {SCREENS[id].title}
-                {id === screen && sc.hints[id] && <small>{sc.hints[id]}</small>}
+                {l(SCREENS[id].title, SCREENS[id].titleCn)}
+                {id === screen && hints[id] && <small>{hints[id]}</small>}
               </span>
             </button>
           </li>
@@ -265,11 +325,19 @@ function StepPanel({ sc, screen, go, hint, meta }) {
       </ol>
       <div className="note">
         <div className="note-k">
-          Design note · {screen} · {meta.refs}
+          {l('Design note', '设计说明')} · {screen} · {l(meta.refs, meta.refsCn)}
         </div>
-        <p>{meta.caption}</p>
-        {!sc.steps.includes(screen) && <p className="note-off">This screen is outside the scenario path. Use the steps above to return.</p>}
-        {!hint && sc.id === 'all' && <p className="note-tip">Tip: tap anywhere on the phone to reveal the tappable areas.</p>}
+        <p>{l(meta.caption, meta.captionCn)}</p>
+        {!sc.steps.includes(screen) && (
+          <p className="note-off">
+            {l('This screen is outside the scenario path. Use the steps above to return.', '此页面不在场景路径上，请用上面的步骤返回。')}
+          </p>
+        )}
+        {!hint && sc.id === 'all' && (
+          <p className="note-tip">
+            {l('Tip: tap anywhere on the phone to reveal the tappable areas.', '提示：点手机上任意位置，即可显示可点击区域。')}
+          </p>
+        )}
       </div>
     </div>
   );

@@ -13,6 +13,8 @@ npm run build    # static site in dist/
 - **Start screen**: 7 scenarios plus a gallery of all 18 screens.
 - **Player**: tap the buttons on the phone, or use Back / Next, the step list, or the ← → keys.
   Tapping a non-interactive area highlights the tappable areas; "Show tappable areas" keeps them visible.
+- **Language**: the EN / 中文 switch (start page, player top bar, or the mobile bottom bar) changes both the website and the app.
+  The choice is remembered; `?lang=zh` or `?lang=en` in the URL sets it directly.
 - URLs: `#/play/<scenario>/<screen>` opens a specific step; `#/frame/<id>` shows a single screen.
 
 ## Where things are

@@ -1,7 +1,7 @@
 // The three underlying pages (Home, Contact page, Chat). Every numbered Figma frame
 // is one of these plus an overlay or a small variation.
 import {
-  C, T, Icon, Photo, Screen, StatusBar, NavBar, Btn, ActionPill, HelpButton, ShowMeHow, Abs, useHot, stroke,
+  C, T, Icon, Photo, Screen, StatusBar, NavBar, Btn, ActionPill, HelpButton, ShowMeHow, Abs, useHot, useL, stroke,
 } from '../components/ui.jsx';
 import daughter from '../assets/photos/daughter.png';
 import son from '../assets/photos/son.png';
@@ -25,6 +25,7 @@ export const CONTACTS = [
 
 export function ContactTile({ name, cn, photo, to, style }) {
   const hot = useHot(to);
+  const l = useL();
   return (
     <div
       {...hot}
@@ -36,7 +37,8 @@ export function ContactTile({ name, cn, photo, to, style }) {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: 4,
+        justifyContent: 'center',
+        gap: 8,
         background: C.white,
         borderRadius: 20,
         flexShrink: 0,
@@ -44,14 +46,14 @@ export function ContactTile({ name, cn, photo, to, style }) {
       }}
     >
       <Photo src={photo} size={104} />
-      <T w={600} s={22} lh={27} nowrap>{name}</T>
-      <T f="noto" s={16} lh={19} c={C.subCn} nowrap>{cn}</T>
+      <T w={600} s={22} lh={27} nowrap>{l(name, cn)}</T>
     </div>
   );
 }
 
 function BottomAction({ icon, en, cn, color = C.text, to }) {
   const hot = useHot(to);
+  const l = useL();
   return (
     <div
       {...hot}
@@ -63,18 +65,19 @@ function BottomAction({ icon, en, cn, color = C.text, to }) {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: 2,
+        justifyContent: 'center',
+        gap: 6,
       }}
     >
       <Icon name={icon} size={32} color={color} />
-      <T w={600} s={18} lh={22} nowrap>{en}</T>
-      <T f="noto" s={13} lh={16} c={C.sub} nowrap>{cn}</T>
+      <T w={600} s={18} lh={22} nowrap>{l(en, cn)}</T>
     </div>
   );
 }
 
 export function HomeBase({ links = {}, children }) {
   const settings = useHot(links.settings);
+  const l = useL();
   return (
     <Screen>
       <StatusBar />
@@ -90,9 +93,8 @@ export function HomeBase({ links = {}, children }) {
         }}
       >
         <div>
-          <T w={500} s={20} lh={24} c={C.sub} nowrap>Good morning,</T>
-          <T w={700} s={28} lh={34} nowrap>Mdm Chen</T>
-          <T f="noto" s={16} lh={19} c={C.sub} nowrap>早上好，陈阿姨</T>
+          <T w={500} s={20} lh={24} c={C.sub} nowrap>{l('Good morning,', '早上好，')}</T>
+          <T w={700} s={28} lh={34} nowrap>{l('Mdm Chen', '陈阿姨')}</T>
         </div>
         <div
           {...settings}
@@ -108,14 +110,11 @@ export function HomeBase({ links = {}, children }) {
           }}
         >
           <Icon name="settings" size={24} />
-          <div>
-            <T w={600} s={17} lh={21} nowrap>Settings</T>
-            <T f="noto" s={12} lh={14} c={C.sub} nowrap style={{ marginTop: -2 }}>设置</T>
-          </div>
+          <T w={600} s={17} lh={21} nowrap>{l('Settings', '设置')}</T>
         </div>
       </div>
       <div style={{ height: 30, flexShrink: 0, boxSizing: 'border-box', padding: '4px 0 6px 20px' }}>
-        <T f="noto" s={17} lh={20} c={C.sub} nowrap>Tap a photo to contact  ·  点照片联系家人</T>
+        <T s={17} lh={20} c={C.sub} nowrap>{l('Tap a photo to contact', '点照片联系家人')}</T>
       </div>
       <div
         style={{
@@ -159,10 +158,11 @@ export function HomeBase({ links = {}, children }) {
 /* ================= Contact page ================= */
 
 export function ContactBase({ links = {}, children }) {
+  const l = useL();
   return (
     <Screen>
       <StatusBar />
-      <NavBar title="Daughter" back={links.back} home={links.home} />
+      <NavBar title={['Daughter', '女儿']} back={links.back} home={links.home} />
       <div
         style={{
           height: 524,
@@ -177,8 +177,8 @@ export function ContactBase({ links = {}, children }) {
       >
         <Photo src={daughter} size={140} />
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <T w={700} s={30} lh={36} nowrap>Daughter</T>
-          <T f="noto" s={18} lh={22} c={C.sub} nowrap>女儿 · Anna</T>
+          <T w={700} s={30} lh={36} nowrap>{l('Daughter', '女儿')}</T>
+          <T s={18} lh={22} c={C.sub} nowrap>Anna</T>
         </div>
         <div style={{ width: 10, height: 6, flexShrink: 0 }} />
         <ContactActions links={links} />
@@ -240,30 +240,30 @@ const Row = ({ end, center, children, style }) => (
 
 /** Message building blocks, referenced by key in each screen's message list. */
 export const MSG = {
-  date: () => (
-    <T f="noto" s={15} lh={18} c="#8c8c8c" align="center" nowrap>Today 10:30  ·  今天</T>
+  date: ({ l }) => (
+    <T s={15} lh={18} c="#8c8c8c" align="center" nowrap>{l('Today 10:30', '今天 10:30')}</T>
   ),
-  dinner: () => (
+  dinner: ({ l }) => (
     <>
       <Row>
         <Avatar />
         <Bubble w={282}>
-          <T w={500} s={20} lh={24}>Mum, are you coming for dinner on Sunday?</T>
+          <T w={500} s={20} lh={24}>{l('Mum, are you coming for dinner on Sunday?', '妈，星期天你来吃晚饭吗？')}</T>
         </Bubble>
       </Row>
       <Row style={{ paddingLeft: 52 }}>
-        <ActionPill icon="volume" text="Read aloud  朗读" />
+        <ActionPill icon="volume" text={l('Read aloud', '朗读')} />
       </Row>
     </>
   ),
-  soup: () => (
+  soup: ({ l }) => (
     <Row end>
       <Bubble out w={282}>
-        <T w={500} s={20} lh={24}>Yes! I will bring soup.</T>
+        <T w={500} s={20} lh={24}>{l('Yes! I will bring soup.', '好！我会带汤过来。')}</T>
       </Bubble>
     </Row>
   ),
-  voiceIn: () => (
+  voiceIn: ({ l }) => (
     <>
       <Row>
         <Avatar />
@@ -281,15 +281,15 @@ export const MSG = {
           }}
         >
           <Icon name="volume" size={26} />
-          <T w={600} s={20} lh={24} nowrap>Voice  0:12</T>
+          <T w={600} s={20} lh={24} nowrap>{l('Voice', '语音')}  0:12</T>
         </div>
       </Row>
       <Row style={{ paddingLeft: 52 }}>
-        <ActionPill icon="message" text="Show as text  转文字" />
+        <ActionPill icon="message" text={l('Show as text', '转文字')} />
       </Row>
     </>
   ),
-  voiceOut: () => (
+  voiceOut: ({ l }) => (
     <Row end>
       <div
         style={{
@@ -304,27 +304,27 @@ export const MSG = {
           borderRadius: 14,
         }}
       >
-        <T w={600} s={20} lh={24} nowrap>Voice  0:12</T>
+        <T w={600} s={20} lh={24} nowrap>{l('Voice', '语音')}  0:12</T>
         <Icon name="check" size={24} color={C.greenDark} />
       </div>
     </Row>
   ),
-  sundayFailed: () => (
+  sundayFailed: ({ l }) => (
     <Row end center>
       <Icon name="alert" size={26} color="#dc6803" />
       <Bubble w={221} style={{ background: 'rgba(149,236,105,0.6)' }}>
-        <T w={500} s={20} lh={24} nowrap>See you on Sunday!</T>
+        <T w={500} s={20} lh={24} nowrap>{l('See you on Sunday!', '星期天见！')}</T>
       </Bubble>
     </Row>
   ),
-  sunday: () => (
+  sunday: ({ l }) => (
     <Row end>
       <Bubble out w={221}>
-        <T w={500} s={20} lh={24} nowrap>See you on Sunday!</T>
+        <T w={500} s={20} lh={24} nowrap>{l('See you on Sunday!', '星期天见！')}</T>
       </Bubble>
     </Row>
   ),
-  okSent: () => (
+  okSent: ({ l }) => (
     <Row end center>
       <div
         style={{
@@ -338,7 +338,7 @@ export const MSG = {
           borderRadius: 14,
         }}
       >
-        <T f="noto" w={500} s={20} lh={24} nowrap>OK  好的</T>
+        <T w={500} s={20} lh={24} nowrap>{l('OK', '好的')}</T>
         <Icon name="check" size={22} color={C.greenDark} />
       </div>
     </Row>
@@ -346,6 +346,7 @@ export const MSG = {
 };
 
 function TextField({ value, focused }) {
+  const l = useL();
   return (
     <div
       style={{
@@ -361,9 +362,9 @@ function TextField({ value, focused }) {
       }}
     >
       {value ? (
-        <T f="noto" w={500} s={20} lh={24} nowrap style={{ paddingLeft: 2 }}>{value}</T>
+        <T w={500} s={20} lh={24} nowrap style={{ paddingLeft: 2 }}>{value}</T>
       ) : (
-        <T f="noto" s={18} lh={22} c="#9a9a9a" nowrap>Type a message…  输入文字</T>
+        <T s={18} lh={22} c="#9a9a9a" nowrap>{l('Type a message…', '输入文字…')}</T>
       )}
     </div>
   );
@@ -387,6 +388,7 @@ export const QUICK_REPLIES = [
 
 function QuickReply({ en, cn, selected, to }) {
   const hot = useHot(to);
+  const l = useL();
   return (
     <div
       {...hot}
@@ -404,23 +406,23 @@ function QuickReply({ en, cn, selected, to }) {
         boxShadow: selected ? stroke(3, C.greenDark) : stroke(2, C.green),
       }}
     >
-      <T w={600} s={19} lh={23} c={selected ? C.white : C.text} nowrap>{en}</T>
-      <T f="noto" s={14} lh={17} c={selected ? C.greenLight : C.sub} nowrap>{cn}</T>
+      <T w={600} s={19} lh={23} c={selected ? C.white : C.text} nowrap>{l(en, cn)}</T>
     </div>
   );
 }
 
 function QuickReplies({ selected, links }) {
   const edit = useHot(links.edit);
+  const l = useL();
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flexShrink: 0 }}>
       {selected ? (
         <div style={{ height: 18 }}>
-          <T f="noto" w={500} s={15} lh={18} c={C.greenDark} nowrap>Check your reply, then tap Send  ·  确认后点发送</T>
+          <T w={500} s={15} lh={18} c={C.greenDark} nowrap>{l('Check your reply, then tap Send', '确认回复后，点“发送”')}</T>
         </div>
       ) : (
         <div style={{ height: 36, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <T f="noto" w={500} s={16} lh={19} c={C.sub} nowrap>Quick replies  ·  快捷回复</T>
+          <T w={500} s={16} lh={19} c={C.sub} nowrap>{l('Quick replies', '快捷回复')}</T>
           <div
             {...edit}
             style={{
@@ -435,7 +437,7 @@ function QuickReplies({ selected, links }) {
             }}
           >
             <Icon name="pencil" size={20} />
-            <T f="noto" w={500} s={16} lh={19} nowrap>Edit  编辑</T>
+            <T w={500} s={16} lh={19} nowrap>{l('Edit', '编辑')}</T>
           </div>
         </div>
       )}
@@ -450,6 +452,7 @@ function QuickReplies({ selected, links }) {
 
 /** Bottom input area. mode: 'plain' | 'quick' | 'selected' */
 export function InputArea({ mode = 'plain', links = {} }) {
+  const l = useL();
   return (
     <div
       style={{
@@ -463,13 +466,13 @@ export function InputArea({ mode = 'plain', links = {} }) {
       }}
     >
       {mode !== 'plain' && <QuickReplies selected={mode === 'selected'} links={links} />}
-      <TextField value={mode === 'selected' ? 'OK  好的' : null} focused={mode === 'selected'} />
+      <TextField value={mode === 'selected' ? l('OK', '好的') : null} focused={mode === 'selected'} />
       <ChatButtons links={links} />
     </div>
   );
 }
 
-export function ChatBase({ title = 'Daughter', messages = [], input = 'plain', links = {}, children }) {
+export function ChatBase({ title = ['Daughter', '女儿'], messages = [], input = 'plain', links = {}, children }) {
   return (
     <Screen>
       <StatusBar />
@@ -498,7 +501,7 @@ export function ChatBase({ title = 'Daughter', messages = [], input = 'plain', l
 
 function MsgFragment({ k }) {
   const El = MSG[k];
-  return <El />;
+  return <El l={useL()} />;
 }
 
 export { Abs };

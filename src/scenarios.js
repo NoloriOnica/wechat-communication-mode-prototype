@@ -1,4 +1,4 @@
-// Scenarios shown on the start screen. Each one is an ordered path through the Figma frames.
+// Scenarios shown on the start screen. Each one is an ordered path through the screens.
 // Inside the phone, tapping the real buttons follows the same prototype links.
 export const SCENARIOS = [
   {
@@ -7,8 +7,10 @@ export const SCENARIOS = [
     cn: '给女儿打视频电话',
     persona: 'Mdm Chen wants to see her daughter.',
     summary: 'From Home, tap a family photo, choose Video Call and confirm. The confirmation step prevents accidental calls.',
+    summaryCn: '在主页点家人的照片，选择“视频通话”并确认。确认这一步可以防止误拨。',
     steps: ['01', '02', '05'],
     hints: { '01': 'Tap the Daughter photo.', '02': 'Tap “Video Call”.', '05': 'Tap Cancel to go back – no call is made.' },
+    hintsCn: { '01': '点女儿的照片。', '02': '点“视频通话”。', '05': '点“取消”返回，不会拨出电话。' },
   },
   {
     id: 'voice-message',
@@ -16,8 +18,10 @@ export const SCENARIOS = [
     cn: '发语音',
     persona: 'Tap once to record – no hold-to-talk.',
     summary: 'Open Daughter, start a voice message, then tap Send. A green “Sent” banner confirms that it worked.',
+    summaryCn: '打开女儿的页面，开始录语音，然后点“发送”。绿色的“已发送”横幅确认发送成功。',
     steps: ['01', '02', '04', '06'],
     hints: { '01': 'Tap the Daughter photo.', '02': 'Tap “Send Voice Message”.', '04': 'Tap Send when finished.', '06': 'The banner confirms the message was sent.' },
+    hintsCn: { '01': '点女儿的照片。', '02': '点“发语音”。', '04': '说完后点“发送”。', '06': '横幅确认消息已发送。' },
   },
   {
     id: 'chat',
@@ -25,24 +29,29 @@ export const SCENARIOS = [
     cn: '聊天与发送失败',
     persona: 'Large text, Read aloud and plain-language errors.',
     summary: 'Read a message in large text, then see what happens when a message cannot be sent and how “Try again” recovers.',
+    summaryCn: '用大字阅读消息，再看看消息发不出去时会怎样，以及如何用“重试”恢复。',
     steps: ['03', '07', '06'],
     hints: { '03': 'Tap Send to send a message.', '07': 'No internet – tap “Try again”.', '06': 'Sent successfully.' },
+    hintsCn: { '03': '点“发送”发出消息。', '07': '没有网络，点“重试”。', '06': '发送成功。' },
   },
   {
     id: 'show-me-how',
     title: '“Show me how” on the contact page',
-    cn: '教我用',
+    cn: '联系人页面的“教我用”',
     persona: 'Optional, step-by-step guidance on demand.',
     summary: 'Tap “Show me how” and the guide highlights the next button to press, with one instruction at a time.',
+    summaryCn: '点“教我用”，教学会高亮下一步要按的按钮，每次只给一个提示。',
     steps: ['02', '09', '05'],
     hints: { '02': 'Tap “Show me how” (bottom left).', '09': 'Tap Next or the highlighted Video Call button.', '05': 'The guide led to the call confirmation.' },
+    hintsCn: { '02': '点“教我用”（左下角）。', '09': '点“下一步”或高亮的“视频通话”按钮。', '05': '教学带你来到了通话确认页面。' },
   },
   {
     id: 'help-guide',
     title: 'Help menu and guided walkthrough',
-    cn: '帮助菜单与教学',
+    cn: '帮助菜单与分步教学',
     persona: 'US24 – Mr Ma learns to send a message.',
     summary: 'Help opens a list of everyday tasks. Picking “Send a message” starts a three-step coach-mark guide that ends with praise.',
+    summaryCn: '“帮助”会打开日常任务列表。选择“怎么发消息”会开始三步教学，最后给予鼓励。',
     steps: ['01', '10', '11', '12', '13', '14'],
     hints: {
       '01': 'Tap Help (bottom right).',
@@ -52,6 +61,14 @@ export const SCENARIOS = [
       '13': 'Tap Send, or Next.',
       '14': 'Done, or practise again.',
     },
+    hintsCn: {
+      '01': '点“帮助”（右下角）。',
+      '10': '点“怎么发消息”。',
+      '11': '点发光的女儿照片，或点“下一步”。',
+      '12': '点发光的“发消息”，或点“下一步”。',
+      '13': '点“发送”，或点“下一步”。',
+      '14': '点“完成”，或再练一次。',
+    },
   },
   {
     id: 'ask-family',
@@ -59,8 +76,10 @@ export const SCENARIOS = [
     cn: '请家人帮忙',
     persona: 'A screenshot is attached; nothing is sent until confirmed.',
     summary: 'From the Help menu, choose “Ask family”. A request with a screenshot of the current screen is prepared for Son.',
+    summaryCn: '在帮助菜单中选择“请家人帮忙”。系统会为儿子准备一条附有当前屏幕截图的求助消息。',
     steps: ['01', '10', '08'],
     hints: { '01': 'Tap Help (bottom right).', '10': 'Tap “Ask family”.', '08': 'Tap “Send request” or Cancel.' },
+    hintsCn: { '01': '点“帮助”（右下角）。', '10': '点“请家人帮忙”。', '08': '点“发送求助”或“取消”。' },
   },
   {
     id: 'quick-replies',
@@ -68,8 +87,10 @@ export const SCENARIOS = [
     cn: '快捷回复',
     persona: 'Feature 12 – answer in two taps.',
     summary: 'Tap a ready-made reply to fill the message box, check it, then tap Send. Replies can be edited and reordered in Settings.',
+    summaryCn: '点一条现成的回复填入输入框，确认后点“发送”。回复可以在设置中编辑和排序。',
     steps: ['15', '16', '17', '18'],
     hints: { '15': 'Tap “OK”.', '16': 'Check the reply, then tap Send.', '17': 'Sent. Tap “Edit” to manage replies.', '18': 'Add, edit, delete or reorder replies.' },
+    hintsCn: { '15': '点“好的”。', '16': '确认回复，然后点“发送”。', '17': '已发送。点“编辑”管理回复。', '18': '添加、编辑、删除或排序回复。' },
   },
 ];
 
@@ -78,9 +99,11 @@ export const ALL_SCREENS = {
   title: 'All screens',
   cn: '全部页面',
   persona: 'Free explore',
-  summary: 'Every screen from the Figma file in order. Tap buttons inside the phone to follow the prototype links.',
+  summary: 'Every screen in order. Tap buttons inside the phone to follow the prototype links.',
+  summaryCn: '按顺序查看所有页面。点手机里的按钮，即可跟着原型链接切换页面。',
   steps: Array.from({ length: 18 }, (_, i) => String(i + 1).padStart(2, '0')),
   hints: {},
+  hintsCn: {},
 };
 
 export const findScenario = (id) => (id === 'all' ? ALL_SCREENS : SCENARIOS.find((s) => s.id === id));

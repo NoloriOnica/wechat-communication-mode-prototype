@@ -37,13 +37,13 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 /* ---------------- start screen ---------------- */
 .start { max-width: 1180px; margin: 0 auto; padding: 56px 32px 40px; }
+.start-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .start-hero { max-width: 760px; margin-bottom: 48px; }
 .brand { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--green-dark); background: var(--green-light); padding: 6px 12px; border-radius: 99px; }
 .brand-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
 .start h1 { font-size: clamp(36px, 6vw, 60px); line-height: 1.04; letter-spacing: -0.025em; margin: 20px 0 16px; font-weight: 700; }
 .start h1 em { font-style: normal; color: var(--green); }
 .lede { font-size: 19px; line-height: 1.55; color: #3d3d3d; margin: 0 0 6px; }
-.lede-cn { font-family: 'Noto Sans SC', sans-serif; color: var(--sub); margin: 0; font-size: 16px; }
 
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); padding-bottom: 12px; margin: 0 0 20px; flex-wrap: wrap; }
 .section-head h2 { margin: 0; font-size: 22px; letter-spacing: -0.01em; }
@@ -61,7 +61,6 @@ section { margin-bottom: 56px; }
 .card-body { padding: 20px 22px 22px; display: flex; flex-direction: column; flex: 1; }
 .card-num { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--green-dark); }
 .card h3 { margin: 6px 0 2px; font-size: 21px; letter-spacing: -0.01em; }
-.card-cn { font-family: 'Noto Sans SC', sans-serif; color: var(--sub); font-size: 15px; }
 .card p { margin: 10px 0 16px; color: #444; line-height: 1.5; font-size: 15px; flex: 1; }
 .card-path { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; font-size: 13px; }
 .card-path b { display: inline-block; background: #f1f1ee; border-radius: 7px; padding: 3px 7px; font-variant-numeric: tabular-nums; }
@@ -88,6 +87,7 @@ section { margin-bottom: 56px; }
 .topbar-title span { font-weight: 400; color: var(--sub); }
 .back-link { all: unset; cursor: pointer; font-weight: 600; font-size: 15px; color: var(--green-dark); padding: 6px 10px; margin-left: -10px; border-radius: 8px; }
 .back-link:hover { background: var(--green-light); }
+.topbar-right { display: flex; align-items: center; gap: 18px; }
 .hot-toggle { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #444; cursor: pointer; user-select: none; }
 .hot-toggle input { accent-color: var(--green); width: 16px; height: 16px; }
 .player-main { flex: 1; min-height: 0; display: flex; justify-content: center; gap: 56px; padding: 16px 32px; }
@@ -107,7 +107,6 @@ section { margin-bottom: 56px; }
 .dot.on { width: 28px; background: var(--green); }
 
 .steps-head h2 { margin: 8px 0 2px; font-size: 26px; letter-spacing: -0.015em; line-height: 1.15; }
-.steps-cn { font-family: 'Noto Sans SC', sans-serif; color: var(--sub); }
 .steps-head p { color: #444; line-height: 1.5; margin: 12px 0 18px; font-size: 15px; }
 .steps ol { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 6px; }
 .step { all: unset; box-sizing: border-box; cursor: pointer; width: 100%; display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px; border-radius: 14px; border: 1px solid transparent; }
@@ -134,3 +133,13 @@ section { margin-bottom: 56px; }
 .m-sheet-wrap { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); display: flex; align-items: flex-end; z-index: 10; }
 .m-sheet { background: var(--paper); width: 100%; max-height: 82vh; overflow-y: auto; border-radius: 22px 22px 0 0; padding: 18px 18px calc(24px + env(safe-area-inset-bottom)); }
 .m-sheet .hot-toggle { margin-top: 16px; }
+
+/* ---------------- language switch ---------------- */
+.lang-switch { display: inline-flex; flex-shrink: 0; padding: 3px; border-radius: 99px; background: #fff; border: 1px solid var(--line); }
+.lang-switch button { border: 0; background: transparent; border-radius: 99px; padding: 6px 14px; font-size: 14px; font-weight: 600; color: var(--sub); line-height: 1.2; transition: background 0.15s, color 0.15s; }
+.lang-switch button:hover:not(.on) { color: var(--ink); }
+.lang-switch button.on { background: var(--green); color: #fff; }
+.lang-switch button:focus-visible { outline: 2px solid var(--green); outline-offset: 1px; }
+.lang-switch.dark { background: #2c2c2c; border-color: #2c2c2c; }
+.lang-switch.dark button { padding: 6px 9px; font-size: 13px; color: #bdbdbd; }
+.lang-switch.dark button:hover:not(.on) { color: #fff; }
