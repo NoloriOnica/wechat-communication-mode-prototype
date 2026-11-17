@@ -1,6 +1,6 @@
-# WeChat Communication Mode – MVP prototype
+# WeChat Lite Mode – MVP prototype
 
-An interactive prototype of WeChat Communication Mode, a simplified mode designed for older users.
+An interactive prototype of WeChat Lite Mode, a simplified mode designed for older users.
 
 ```
 npm install

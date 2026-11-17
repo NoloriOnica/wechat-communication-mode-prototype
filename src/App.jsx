@@ -54,7 +54,7 @@ function useLangState() {
       /* storage unavailable */
     }
     document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
-    document.title = lang === 'zh' ? '微信沟通模式 – MVP 原型' : 'WeChat Communication Mode – MVP prototype';
+    document.title = lang === 'zh' ? '微信简易模式 – MVP 原型' : 'WeChat Lite Mode – MVP prototype';
   }, [lang]);
   return [lang, setLang];
 }
@@ -113,7 +113,7 @@ function Start({ tab, nav }) {
         <LangSwitch />
       </div>
       <header className="start-hero">
-        <h1>{l(<>WeChat <em>Communication Mode</em></>, <>微信<em>沟通模式</em></>)}</h1>
+        <h1>{l(<>WeChat <em>Lite Mode</em></>, <>微信<em>简易模式</em></>)}</h1>
         <p className="lede">
           {l(
             'An elderly-friendly, communication-first interface. Walk through a user flow, try the full working MVP, or browse every screen.',
@@ -292,7 +292,7 @@ function Player({ sid, screen, nav }) {
           {sid === 'all' ? l('← All screens', '← 全部页面') : l('← All user flows', '← 全部流程')}
         </button>
         <div className="topbar-title">
-          {l('WeChat Communication Mode', '微信沟通模式')} <span>· {l('prototype', '原型')}</span>
+          {l('WeChat Lite Mode', '微信简易模式')} <span>· {l('prototype', '原型')}</span>
         </div>
         <div className="topbar-right">
           {hotToggle}
