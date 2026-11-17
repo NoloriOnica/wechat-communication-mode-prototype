@@ -3,8 +3,11 @@ import { SCENARIOS, ALL_SCREENS, findScenario } from './scenarios.js';
 import { SCREENS } from './screens/screens.jsx';
 import { LiveScreen, ScreenThumb, useViewport, FRAME } from './Phone.jsx';
 import { LangCtx, useL } from './components/ui.jsx';
+import { MvpView, MobileMvp } from './mvp/MvpView.jsx';
 
-/* ---------------- hash routing: #/play/<scenario>/<screen> ---------------- */
+/* ---------------- hash routing ----------------
+   #/            User Flows tab      #/mvp   Full MVP tab      #/screens   Screens tab
+   #/play/<flow>/<screen>   step-through player      #/frame/<id>   one bare frame */
 function parseHash() {
   const [, view, sid, screen] = window.location.hash.replace(/^#/, '').split('/');
   // #/frame/<id> renders one bare frame at 1x
@@ -13,7 +16,8 @@ function parseHash() {
     const sc = findScenario(sid);
     return { view: 'play', sid, screen: SCREENS[screen] ? screen : sc.steps[0] };
   }
-  return { view: 'start' };
+  if (view === 'mvp' || view === 'screens') return { view: 'start', tab: view };
+  return { view: 'start', tab: 'flows' };
 }
 
 function useRoute() {
@@ -24,7 +28,7 @@ function useRoute() {
     return () => window.removeEventListener('hashchange', on);
   }, []);
   const nav = useCallback((r) => {
-    window.location.hash = r.view === 'play' ? `/play/${r.sid}/${r.screen}` : '/';
+    window.location.hash = r.view === 'play' ? `/play/${r.sid}/${r.screen}` : `/${r.tab && r.tab !== 'flows' ? r.tab : ''}`;
   }, []);
   return [route, nav];
 }
@@ -76,10 +80,12 @@ export default function App() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [route.view, route.sid]);
+  const vp = useViewport();
   let view;
   if (route.view === 'frame') view = <ScreenThumb id={route.screen} scale={1} />;
   else if (route.view === 'play') view = <Player sid={route.sid} screen={route.screen} nav={nav} />;
-  else view = <Start nav={nav} />;
+  else if (route.tab === 'mvp' && vp.w <= 820) view = <MobileMvp onExit={() => nav({ view: 'start', tab: 'flows' })} langSwitch={<LangSwitch dark />} />;
+  else view = <Start tab={route.tab} nav={nav} />;
   return (
     <SetLangCtx.Provider value={setLang}>
       <LangCtx.Provider value={lang}>{view}</LangCtx.Provider>
@@ -88,7 +94,13 @@ export default function App() {
 }
 
 /* ================================ Start ================================ */
-function Start({ nav }) {
+const TABS = [
+  { id: 'flows', en: 'User Flows', cn: '用户流程' },
+  { id: 'mvp', en: 'Full MVP', cn: '完整 MVP' },
+  { id: 'screens', en: 'Screens', cn: '全部页面' },
+];
+
+function Start({ tab, nav }) {
   const l = useL();
   const open = (sid, screen) => nav({ view: 'play', sid, screen: screen || findScenario(sid).steps[0] });
   return (
@@ -104,19 +116,36 @@ function Start({ nav }) {
         <h1>{l(<>WeChat <em>Communication Mode</em></>, <>微信<em>沟通模式</em></>)}</h1>
         <p className="lede">
           {l(
-            'An elderly-friendly, communication-first interface. Pick a scenario to walk through it, and tap the real buttons on the phone to move between screens.',
-            '一个适合长辈、以沟通为主的界面。选择一个场景开始演示，点手机上的按钮即可切换页面。',
+            'An elderly-friendly, communication-first interface. Walk through a user flow, try the full working MVP, or browse every screen.',
+            '一个适合长辈、以沟通为主的界面。可以按用户流程演示、试用完整可用的 MVP，或浏览全部页面。',
           )}
         </p>
       </header>
 
+      <nav className="tabs" role="tablist" aria-label={l('Sections', '栏目')}>
+        {TABS.map((x) => (
+          <button
+            key={x.id}
+            role="tab"
+            aria-selected={tab === x.id}
+            className={tab === x.id ? 'on' : ''}
+            onClick={() => nav({ view: 'start', tab: x.id })}
+          >
+            {l(x.en, x.cn)}
+          </button>
+        ))}
+      </nav>
+
+      {tab === 'mvp' && <MvpView />}
+
+      {tab === 'flows' && (
       <section>
         <div className="section-head">
-          <h2>{l('Scenarios', '场景')}</h2>
-          <span>{l(`${SCENARIOS.length} cases`, `共 ${SCENARIOS.length} 个场景`)}</span>
+          <h2>{l('User flows', '用户流程')}</h2>
+          <span>{l(`${SCENARIOS.length} flows`, `共 ${SCENARIOS.length} 个流程`)}</span>
         </div>
         <div className="cards">
-          {SCENARIOS.map((s, i) => (
+          {SCENARIOS.map((s) => (
             <button key={s.id} className="card" onClick={() => open(s.id)}>
               <div className="card-thumbs">
                 {s.steps.slice(0, 3).map((id, k) => (
@@ -126,7 +155,7 @@ function Start({ nav }) {
                 ))}
               </div>
               <div className="card-body">
-                <div className="card-num">{l(`Case ${i + 1}`, `场景 ${i + 1}`)}</div>
+                <div className="card-num">{l(`User flow ${s.flow}`, `用户流程 ${s.flow}`)}</div>
                 <h3>{l(s.title, s.cn)}</h3>
                 <p>{l(s.summary, s.summaryCn)}</p>
                 <div className="card-path">
@@ -142,11 +171,13 @@ function Start({ nav }) {
           ))}
         </div>
       </section>
+      )}
 
+      {tab === 'screens' && (
       <section>
         <div className="section-head">
           <h2>{l('All screens', '全部页面')}</h2>
-          <span>{l('18 screens', '共 18 个页面')}</span>
+          <span>{l(`${ALL_SCREENS.steps.length} screens`, `共 ${ALL_SCREENS.steps.length} 个页面`)}</span>
         </div>
         <div className="gallery">
           {ALL_SCREENS.steps.map((id) => (
@@ -161,6 +192,7 @@ function Start({ nav }) {
           ))}
         </div>
       </section>
+      )}
 
       <footer className="start-foot">
         {l('Linked to PRD Section 4.1 and user stories Section 4.2.', '对应 PRD 第 4.1 节和用户故事第 4.2 节。')}
@@ -188,7 +220,7 @@ function Player({ sid, screen, nav }) {
   const go = useCallback((id) => nav({ view: 'play', sid, screen: id }), [nav, sid]);
   const prev = () => pos > 0 && go(sc.steps[pos - 1]);
   const next = () => pos < sc.steps.length - 1 && go(sc.steps[pos + 1]);
-  const home = () => nav({ view: 'start' });
+  const home = () => nav({ view: 'start', tab: sid === 'all' ? 'screens' : 'flows' });
 
   useEffect(() => {
     const on = (e) => {
@@ -218,7 +250,7 @@ function Player({ sid, screen, nav }) {
           <LiveScreen id={screen} go={go} scale={scale} showHotspots={showHot} />
         </div>
         <div className="m-bar" style={{ height: bar }}>
-          <button className="m-btn" onClick={() => setMenu(true)} aria-label={l('Scenario steps', '场景步骤')}>
+          <button className="m-btn" onClick={() => setMenu(true)} aria-label={l('Flow steps', '流程步骤')}>
             <MenuIcon />
           </button>
           <button className="m-btn" onClick={prev} disabled={pos === 0} aria-label={l('Previous screen', '上一页')}>
@@ -239,7 +271,7 @@ function Player({ sid, screen, nav }) {
           <div className="m-sheet-wrap" onClick={() => setMenu(false)}>
             <div className="m-sheet" onClick={(e) => e.stopPropagation()}>
               <button className="back-link" onClick={home}>
-                {l('← All scenarios', '← 全部场景')}
+                {sid === 'all' ? l('← All screens', '← 全部页面') : l('← All user flows', '← 全部流程')}
               </button>
               <StepPanel sc={sc} screen={screen} go={(id) => (go(id), setMenu(false))} hint={hint} meta={meta} />
               {hotToggle}
@@ -257,7 +289,7 @@ function Player({ sid, screen, nav }) {
     <div className="player">
       <div className="topbar">
         <button className="back-link" onClick={home}>
-          {l('← All scenarios', '← 全部场景')}
+          {sid === 'all' ? l('← All screens', '← 全部页面') : l('← All user flows', '← 全部流程')}
         </button>
         <div className="topbar-title">
           {l('WeChat Communication Mode', '微信沟通模式')} <span>· {l('prototype', '原型')}</span>
@@ -330,7 +362,7 @@ function StepPanel({ sc, screen, go, hint, meta }) {
         <p>{l(meta.caption, meta.captionCn)}</p>
         {!sc.steps.includes(screen) && (
           <p className="note-off">
-            {l('This screen is outside the scenario path. Use the steps above to return.', '此页面不在场景路径上，请用上面的步骤返回。')}
+            {l('This screen is outside the user flow. Use the steps above to return.', '此页面不在流程路径上，请用上面的步骤返回。')}
           </p>
         )}
         {!hint && sc.id === 'all' && (

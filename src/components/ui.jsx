@@ -158,11 +158,12 @@ function PillLabels({ en, cn, enSize = 18, enLh = 22, enW = 600, color = C.text 
   return <T w={enW} s={enSize} lh={enLh} c={color} nowrap>{l(en, cn)}</T>;
 }
 
-export function NavPill({ icon, en, cn, to, iconSize = 26, pad = '6px 14px 6px 10px', height = 52, style, labels }) {
+export function NavPill({ icon, en, cn, to, iconSize = 26, pad = '6px 14px 6px 10px', height = 52, style, labels, g }) {
   const hot = useHot(to);
   return (
     <div
       {...hot}
+      data-guide={g}
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -196,9 +197,9 @@ export function NavBar({ title, back, home }) {
         background: C.bg,
       }}
     >
-      <NavPill icon="arrow-left" en="Back" cn="返回" to={back} />
+      <NavPill icon="arrow-left" en="Back" cn="返回" to={back} g="nav-back" />
       <T w={700} s={22} lh={27} nowrap>{Array.isArray(title) ? l(...title) : title}</T>
-      <NavPill icon="home" en="Home" cn="主页" to={home} />
+      <NavPill icon="home" en="Home" cn="主页" to={home} g="nav-home" />
     </div>
   );
 }
@@ -210,13 +211,14 @@ const BTN = {
   neutral: { bg: C.neutral, fg: C.text, cn: C.neutralCn, icon: C.text, shadow: undefined },
 };
 
-export function Btn({ kind = 'primary', icon, label, cn, w = '100%', h = 76, pl = 24, pr = 24, gap = 16, iconColor, to, style }) {
+export function Btn({ kind = 'primary', icon, label, cn, w = '100%', h = 76, pl = 24, pr = 24, gap = 16, iconColor, to, style, g }) {
   const k = BTN[kind];
   const hot = useHot(to);
   const l = useL();
   return (
     <div
       {...hot}
+      data-guide={g}
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -239,11 +241,12 @@ export function Btn({ kind = 'primary', icon, label, cn, w = '100%', h = 76, pl 
 }
 
 /* ---------- small pills ---------- */
-export function ActionPill({ icon, text, to, style }) {
+export function ActionPill({ icon, text, to, style, g }) {
   const hot = useHot(to);
   return (
     <div
       {...hot}
+      data-guide={g}
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -273,6 +276,7 @@ export function HelpButton({ to }) {
       w={116}
       h={60}
       {...hot}
+      data-guide="help"
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -299,6 +303,7 @@ export function ShowMeHow({ to }) {
       w={181}
       h={56}
       {...hot}
+      data-guide="show-me"
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -376,7 +381,7 @@ export function Banner({ type = 'success', title, message, y = 124, h = 77, styl
 }
 
 /* ---------- guide (coach marks) ---------- */
-export function GuideBar({ exit }) {
+export function GuideBar({ exit, title = ['Guide: Send a message', '正在教：怎么发消息'] }) {
   const l = useL();
   return (
     <Abs
@@ -393,7 +398,7 @@ export function GuideBar({ exit }) {
         alignItems: 'center',
       }}
     >
-      <T w={700} s={19} lh={23} c={C.white} nowrap>{l('Guide: Send a message', '正在教：怎么发消息')}</T>
+      <T w={700} s={19} lh={23} c={C.white} nowrap>{l(...title)}</T>
       <NavPill
         icon="x"
         iconSize={22}
@@ -408,10 +413,12 @@ export function GuideBar({ exit }) {
   );
 }
 
-export function ReadAloud({ style }) {
+export function ReadAloud({ style, to, reading }) {
   const l = useL();
+  const hot = useHot(to);
   return (
     <div
+      {...hot}
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -427,12 +434,12 @@ export function ReadAloud({ style }) {
       }}
     >
       <Icon name="volume" size={22} color={C.greenIcon} />
-      <T w={600} s={15} lh={18} nowrap>{l('Read aloud', '朗读')}</T>
+      <T w={600} s={15} lh={18} nowrap>{reading ? l('Stop', '停止') : l('Read aloud', '朗读')}</T>
     </div>
   );
 }
 
-export function GuideCard({ y, step, title, cn, close, next }) {
+export function GuideCard({ y, step, title, cn, close, next, style, read, reading }) {
   const l = useL();
   return (
     <Abs
@@ -440,6 +447,7 @@ export function GuideCard({ y, step, title, cn, close, next }) {
       y={y}
       w={361}
       style={{
+        ...style,
         background: C.white,
         borderRadius: 20,
         padding: '16px 20px 18px 20px',
@@ -454,7 +462,7 @@ export function GuideCard({ y, step, title, cn, close, next }) {
         <div style={{ height: 29, boxSizing: 'border-box', padding: '5px 12px', background: C.greenLight, borderRadius: 14 }}>
           <T w={500} s={16} lh={19} c={C.greenDark} nowrap>{l(...step)}</T>
         </div>
-        <ReadAloud />
+        <ReadAloud to={read} reading={reading} />
       </div>
       <T w={700} s={22} lh={27}>{l(title, cn)}</T>
       <div style={{ height: 20, display: 'flex', alignItems: 'center', gap: 6 }}>

@@ -1,8 +1,58 @@
-// Scenarios shown on the start screen. Each one is an ordered path through the screens.
+// Scenarios shown on the start screen, one per user flow diagram (`flow` is the diagram number).
+// Each one is an ordered path through the screens.
 // Inside the phone, tapping the real buttons follows the same prototype links.
 export const SCENARIOS = [
   {
+    id: 'lite-mode',
+    flow: '1',
+    title: 'Switch on Lite mode',
+    cn: '打开简易模式',
+    persona: 'From standard WeChat to Lite mode with one toggle.',
+    summary: 'Start in the normal WeChat look, go to Me → Settings and turn on the Lite mode toggle. After a short confirmation, WeChat switches to the Lite mode home screen.',
+    summaryCn: '从普通微信开始，进入“我 → 设置”，打开“简易模式”开关。简短确认后，微信切换到简易模式的主页。',
+    steps: ['19', '20', '21', '01'],
+    hints: {
+      '19': 'Tap “Me” (bottom right) to open Settings.',
+      '20': 'Tap the Lite mode toggle.',
+      '21': 'Tap “Switch to Lite mode”.',
+      '01': 'WeChat is now in Lite mode.',
+    },
+    hintsCn: {
+      '19': '点右下角的“我”，打开设置。',
+      '20': '点“简易模式”开关。',
+      '21': '点“切换到简易模式”。',
+      '01': '微信已切换到简易模式。',
+    },
+  },
+  {
+    id: 'message',
+    flow: '2.1',
+    title: 'Message Daughter: voice and text',
+    cn: '给女儿发语音和文字',
+    persona: 'Tap once to record, large text, plain-language errors.',
+    summary: 'Send Daughter a voice message with one tap to record. In the chat, read her message in large text and reply. When the reply cannot be sent, a plain-language error and “Try again” recover it.',
+    summaryCn: '点一下就能给女儿录语音并发送。在聊天里用大字阅读她的消息并回复。回复发不出去时，简单易懂的提示和“重试”帮你重新发送。',
+    steps: ['01', '02', '04', '06', '07', '22'],
+    hints: {
+      '01': 'Tap the Daughter photo.',
+      '02': 'Tap “Send Voice Message”.',
+      '04': 'Tap Send when finished.',
+      '06': 'Sent. Now tap Send to reply “See you on Sunday!”.',
+      '07': 'No internet – tap “Try again”.',
+      '22': 'The reply was sent.',
+    },
+    hintsCn: {
+      '01': '点女儿的照片。',
+      '02': '点“发语音”。',
+      '04': '说完后点“发送”。',
+      '06': '已发送。再点“发送”回复“星期天见！”。',
+      '07': '没有网络，点“重试”。',
+      '22': '回复已发送。',
+    },
+  },
+  {
     id: 'video-call',
+    flow: '2.2',
     title: 'Video call Daughter',
     cn: '给女儿打视频电话',
     persona: 'Mdm Chen wants to see her daughter.',
@@ -13,53 +63,24 @@ export const SCENARIOS = [
     hintsCn: { '01': '点女儿的照片。', '02': '点“视频通话”。', '05': '点“取消”返回，不会拨出电话。' },
   },
   {
-    id: 'voice-message',
-    title: 'Send a voice message',
-    cn: '发语音',
-    persona: 'Tap once to record – no hold-to-talk.',
-    summary: 'Open Daughter, start a voice message, then tap Send. A green “Sent” banner confirms that it worked.',
-    summaryCn: '打开女儿的页面，开始录语音，然后点“发送”。绿色的“已发送”横幅确认发送成功。',
-    steps: ['01', '02', '04', '06'],
-    hints: { '01': 'Tap the Daughter photo.', '02': 'Tap “Send Voice Message”.', '04': 'Tap Send when finished.', '06': 'The banner confirms the message was sent.' },
-    hintsCn: { '01': '点女儿的照片。', '02': '点“发语音”。', '04': '说完后点“发送”。', '06': '横幅确认消息已发送。' },
-  },
-  {
-    id: 'chat',
-    title: 'Chat and a failed message',
-    cn: '聊天与发送失败',
-    persona: 'Large text, Read aloud and plain-language errors.',
-    summary: 'Read a message in large text, then see what happens when a message cannot be sent and how “Try again” recovers.',
-    summaryCn: '用大字阅读消息，再看看消息发不出去时会怎样，以及如何用“重试”恢复。',
-    steps: ['03', '07', '06'],
-    hints: { '03': 'Tap Send to send a message.', '07': 'No internet – tap “Try again”.', '06': 'Sent successfully.' },
-    hintsCn: { '03': '点“发送”发出消息。', '07': '没有网络，点“重试”。', '06': '发送成功。' },
-  },
-  {
-    id: 'show-me-how',
-    title: '“Show me how” on the contact page',
-    cn: '联系人页面的“教我用”',
-    persona: 'Optional, step-by-step guidance on demand.',
-    summary: 'Tap “Show me how” and the guide highlights the next button to press, with one instruction at a time.',
-    summaryCn: '点“教我用”，教学会高亮下一步要按的按钮，每次只给一个提示。',
-    steps: ['02', '09', '05'],
-    hints: { '02': 'Tap “Show me how” (bottom left).', '09': 'Tap Next or the highlighted Video Call button.', '05': 'The guide led to the call confirmation.' },
-    hintsCn: { '02': '点“教我用”（左下角）。', '09': '点“下一步”或高亮的“视频通话”按钮。', '05': '教学带你来到了通话确认页面。' },
-  },
-  {
-    id: 'help-guide',
-    title: 'Help menu and guided walkthrough',
-    cn: '帮助菜单与分步教学',
-    persona: 'US24 – Mr Ma learns to send a message.',
-    summary: 'Help opens a list of everyday tasks. Picking “Send a message” starts a three-step coach-mark guide that ends with praise.',
-    summaryCn: '“帮助”会打开日常任务列表。选择“怎么发消息”会开始三步教学，最后给予鼓励。',
-    steps: ['01', '10', '11', '12', '13', '14'],
+    id: 'guided-help',
+    flow: '3',
+    title: 'Guided walkthrough and “Show me how”',
+    cn: '分步教学与“教我用”',
+    persona: 'US24 – Mr Ma learns to send a message, then gets help on a contact page.',
+    summary: 'Help opens a list of everyday tasks. “Send a message” starts a three-step coach-mark guide that ends with praise. On a contact page, “Show me how” gives the same kind of help for one task, highlighting the next button to press.',
+    summaryCn: '“帮助”会打开日常任务列表。选择“怎么发消息”会开始三步教学，最后给予鼓励。在联系人页面点“教我用”，也能得到同样的帮助：高亮下一步要按的按钮。',
+    steps: ['01', '10', '11', '12', '13', '14', '02', '09', '05'],
     hints: {
       '01': 'Tap Help (bottom right).',
       '10': 'Tap “Send a message”.',
       '11': 'Tap the glowing Daughter photo, or Next.',
       '12': 'Tap the glowing “Send Message”, or Next.',
       '13': 'Tap Send, or Next.',
-      '14': 'Done, or practise again.',
+      '14': 'Done! Tap Next to try “Show me how” on Daughter’s page.',
+      '02': 'Tap “Show me how” (bottom left).',
+      '09': 'Tap Next or the highlighted Video Call button.',
+      '05': 'The guide led to the call confirmation.',
     },
     hintsCn: {
       '01': '点“帮助”（右下角）。',
@@ -67,11 +88,15 @@ export const SCENARIOS = [
       '11': '点发光的女儿照片，或点“下一步”。',
       '12': '点发光的“发消息”，或点“下一步”。',
       '13': '点“发送”，或点“下一步”。',
-      '14': '点“完成”，或再练一次。',
+      '14': '完成！点“下一步”，在女儿的页面试试“教我用”。',
+      '02': '点“教我用”（左下角）。',
+      '09': '点“下一步”或高亮的“视频通话”按钮。',
+      '05': '教学带你来到了通话确认页面。',
     },
   },
   {
     id: 'ask-family',
+    flow: '4',
     title: 'Ask family for help',
     cn: '请家人帮忙',
     persona: 'A screenshot is attached; nothing is sent until confirmed.',
@@ -83,6 +108,7 @@ export const SCENARIOS = [
   },
   {
     id: 'quick-replies',
+    flow: '5',
     title: 'Quick replies',
     cn: '快捷回复',
     persona: 'Feature 12 – answer in two taps.',
@@ -101,9 +127,13 @@ export const ALL_SCREENS = {
   persona: 'Free explore',
   summary: 'Every screen in order. Tap buttons inside the phone to follow the prototype links.',
   summaryCn: '按顺序查看所有页面。点手机里的按钮，即可跟着原型链接切换页面。',
-  steps: Array.from({ length: 18 }, (_, i) => String(i + 1).padStart(2, '0')),
+  // Standard WeChat (19–21) first, then Lite mode in Figma order; 22 follows the error it resolves.
+  steps: ['19', '20', '21', '01', '02', '03', '04', '05', '06', '07', '22', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18'],
   hints: {},
   hintsCn: {},
 };
 
-export const findScenario = (id) => (id === 'all' ? ALL_SCREENS : SCENARIOS.find((s) => s.id === id));
+// Scenario ids from before the user-flow restructure, so old links still open.
+const OLD_IDS = { 'voice-message': 'message', chat: 'message', 'show-me-how': 'guided-help', 'help-guide': 'guided-help' };
+
+export const findScenario = (id) => (id === 'all' ? ALL_SCREENS : SCENARIOS.find((s) => s.id === (OLD_IDS[id] || id)));

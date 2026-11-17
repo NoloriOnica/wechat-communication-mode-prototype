@@ -1,5 +1,6 @@
 // The three underlying pages (Home, Contact page, Chat). Every numbered Figma frame
 // is one of these plus an overlay or a small variation.
+import { useEffect, useRef, useState } from 'react';
 import {
   C, T, Icon, Photo, Screen, StatusBar, NavBar, Btn, ActionPill, HelpButton, ShowMeHow, Abs, useHot, useL, stroke,
 } from '../components/ui.jsx';
@@ -13,22 +14,24 @@ import family from '../assets/photos/family.png';
 export const PHOTOS = { daughter, son, grandson, sister, husband, family };
 
 export const CONTACTS = [
-  { id: 'daughter', name: 'Daughter', cn: '女儿', photo: daughter },
-  { id: 'son', name: 'Son', cn: '儿子', photo: son },
-  { id: 'grandson', name: 'Grandson', cn: '孙子', photo: grandson },
-  { id: 'sister', name: 'Sister', cn: '妹妹', photo: sister },
-  { id: 'husband', name: 'Husband', cn: '老伴', photo: husband },
-  { id: 'family', name: 'Family Group', cn: '家人群', photo: family },
+  { id: 'daughter', name: 'Daughter', cn: '女儿', photo: daughter, sub: 'Anna' },
+  { id: 'son', name: 'Son', cn: '儿子', photo: son, sub: 'David' },
+  { id: 'grandson', name: 'Grandson', cn: '孙子', photo: grandson, sub: 'Leo' },
+  { id: 'sister', name: 'Sister', cn: '妹妹', photo: sister, sub: 'Mei' },
+  { id: 'husband', name: 'Husband', cn: '老伴', photo: husband, sub: 'Wei' },
+  { id: 'family', name: 'Family Group', cn: '家人群', photo: family, sub: '6 members', subCn: '6位成员' },
 ];
+export const contactById = (id) => CONTACTS.find((c) => c.id === id) || CONTACTS[0];
 
 /* ================= Home ================= */
 
-export function ContactTile({ name, cn, photo, to, style }) {
+export function ContactTile({ id, name, cn, photo, to, style }) {
   const hot = useHot(to);
   const l = useL();
   return (
     <div
       {...hot}
+      data-guide={id && `tile-${id}`}
       style={{
         width: 170,
         height: 180,
@@ -57,6 +60,7 @@ function BottomAction({ icon, en, cn, color = C.text, to }) {
   return (
     <div
       {...hot}
+      data-guide={`bottom-${icon}`}
       style={{
         width: 90,
         height: 84,
@@ -98,6 +102,7 @@ export function HomeBase({ links = {}, children }) {
         </div>
         <div
           {...settings}
+          data-guide="home-settings"
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -157,12 +162,13 @@ export function HomeBase({ links = {}, children }) {
 
 /* ================= Contact page ================= */
 
-export function ContactBase({ links = {}, children }) {
+export function ContactBase({ links = {}, contact = CONTACTS[0], children }) {
   const l = useL();
+  const c = contact;
   return (
     <Screen>
       <StatusBar />
-      <NavBar title={['Daughter', '女儿']} back={links.back} home={links.home} />
+      <NavBar title={[c.name, c.cn]} back={links.back} home={links.home} />
       <div
         style={{
           height: 524,
@@ -175,10 +181,10 @@ export function ContactBase({ links = {}, children }) {
           gap: 14,
         }}
       >
-        <Photo src={daughter} size={140} />
+        <Photo src={c.photo} size={140} />
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <T w={700} s={30} lh={36} nowrap>{l('Daughter', '女儿')}</T>
-          <T s={18} lh={22} c={C.sub} nowrap>Anna</T>
+          <T w={700} s={30} lh={36} nowrap>{l(c.name, c.cn)}</T>
+          <T s={18} lh={22} c={C.sub} nowrap>{l(c.sub, c.subCn || c.sub)}</T>
         </div>
         <div style={{ width: 10, height: 6, flexShrink: 0 }} />
         <ContactActions links={links} />
@@ -192,20 +198,20 @@ export function ContactBase({ links = {}, children }) {
 
 export function ContactActions({ links = {}, only }) {
   const items = [
-    { k: 'message', el: <Btn key="m" kind="secondary" icon="message" label="Send Message" cn="发消息" w={345} to={links.message} /> },
-    { k: 'voice', el: <Btn key="v" kind="secondary" icon="mic" label="Send Voice Message" cn="发语音" w={345} to={links.voice} /> },
-    { k: 'video', el: <Btn key="c" kind="primary" icon="video" label="Video Call" cn="视频通话" w={345} to={links.video} /> },
+    { k: 'message', el: <Btn key="m" g="act-message" kind="secondary" icon="message" label="Send Message" cn="发消息" w={345} to={links.message} /> },
+    { k: 'voice', el: <Btn key="v" g="act-voice" kind="secondary" icon="mic" label="Send Voice Message" cn="发语音" w={345} to={links.voice} /> },
+    { k: 'video', el: <Btn key="c" g="act-video" kind="primary" icon="video" label="Video Call" cn="视频通话" w={345} to={links.video} /> },
   ];
   return items.filter((i) => !only || i.k === only).map((i) => i.el);
 }
 
 /* ================= Chat ================= */
 
-function Avatar() {
-  return <Photo src={daughter} size={44} />;
+function Avatar({ src = daughter }) {
+  return <Photo src={src} size={44} />;
 }
 
-function Bubble({ out, w, children, style }) {
+export function Bubble({ out, w, children, style }) {
   return (
     <div
       style={{
@@ -223,7 +229,7 @@ function Bubble({ out, w, children, style }) {
   );
 }
 
-const Row = ({ end, center, children, style }) => (
+export const Row = ({ end, center, children, style }) => (
   <div
     style={{
       display: 'flex',
@@ -345,8 +351,9 @@ export const MSG = {
   ),
 };
 
-function TextField({ value, focused }) {
+function TextField({ value, focused, onChange, onEnter }) {
   const l = useL();
+  if (onChange) return <LiveField value={value} onChange={onChange} onEnter={onEnter} />;
   return (
     <div
       style={{
@@ -370,11 +377,47 @@ function TextField({ value, focused }) {
   );
 }
 
+/** Real text box, styled like the Figma field. Used by the Full MVP. */
+function LiveField({ value, onChange, onEnter }) {
+  const l = useL();
+  const [focus, setFocus] = useState(false);
+  const on = focus || !!value;
+  return (
+    <input
+      className="cm-input"
+      data-guide="chat-field"
+      value={value}
+      placeholder={l('Type a message…', '输入文字…')}
+      onChange={(e) => onChange(e.target.value)}
+      onKeyDown={(e) => e.key === 'Enter' && onEnter && onEnter()}
+      onFocus={() => setFocus(true)}
+      onBlur={() => setFocus(false)}
+      onClick={(e) => e.stopPropagation()}
+      style={{
+        height: on ? 56 : 52,
+        width: '100%',
+        flexShrink: 0,
+        boxSizing: 'border-box',
+        padding: '0 16px',
+        border: 'none',
+        outline: 'none',
+        background: C.field,
+        borderRadius: 12,
+        boxShadow: on ? stroke(2, C.green) : stroke(1, C.border),
+        fontFamily: "'Inter', 'Noto Sans SC', system-ui, sans-serif",
+        fontWeight: 500,
+        fontSize: 20,
+        color: C.text,
+      }}
+    />
+  );
+}
+
 export function ChatButtons({ links = {} }) {
   return (
     <div style={{ display: 'flex', gap: 10, flexShrink: 0 }}>
-      <Btn kind="secondary" icon="mic" label="Speak to type" cn="说话打字" w={221} pl={14} pr={10} gap={10} to={links.speak} />
-      <Btn kind="primary" icon="send" label="Send" cn="发送" w={130} pl={20} to={links.send} />
+      <Btn g="chat-speak" kind="secondary" icon="mic" label="Speak to type" cn="说话打字" w={221} pl={14} pr={10} gap={10} to={links.speak} />
+      <Btn g="chat-send" kind="primary" icon="send" label="Send" cn="发送" w={130} pl={20} to={links.send} />
     </div>
   );
 }
@@ -406,17 +449,21 @@ function QuickReply({ en, cn, selected, to }) {
         boxShadow: selected ? stroke(3, C.greenDark) : stroke(2, C.green),
       }}
     >
-      <T w={600} s={19} lh={23} c={selected ? C.white : C.text} nowrap>{l(en, cn)}</T>
+      <T w={600} s={19} lh={23} c={selected ? C.white : C.text} nowrap style={{ maxWidth: 151, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+        {l(en, cn)}
+      </T>
     </div>
   );
 }
 
-function QuickReplies({ selected, links }) {
+/** `selected`: true = first reply (static frame 16), a number = that reply (Full MVP), false/null = none. */
+function QuickReplies({ selected, links, replies = QUICK_REPLIES }) {
   const edit = useHot(links.edit);
   const l = useL();
+  const picked = selected === true ? 0 : typeof selected === 'number' ? selected : -1;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flexShrink: 0 }}>
-      {selected ? (
+      {picked >= 0 ? (
         <div style={{ height: 18 }}>
           <T w={500} s={15} lh={18} c={C.greenDark} nowrap>{l('Check your reply, then tap Send', '确认回复后，点“发送”')}</T>
         </div>
@@ -425,6 +472,7 @@ function QuickReplies({ selected, links }) {
           <T w={500} s={16} lh={19} c={C.sub} nowrap>{l('Quick replies', '快捷回复')}</T>
           <div
             {...edit}
+            data-guide="replies-edit"
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -442,19 +490,24 @@ function QuickReplies({ selected, links }) {
         </div>
       )}
       <div style={{ display: 'flex', flexWrap: 'wrap', columnGap: 11, rowGap: 10 }}>
-        {QUICK_REPLIES.map((r, i) => (
-          <QuickReply key={r.en} {...r} selected={selected && i === 0} to={links.replies?.[i]} />
+        {replies.map((r, i) => (
+          <QuickReply key={r.en + i} {...r} selected={i === picked} to={links.replies?.[i]} />
         ))}
       </div>
     </div>
   );
 }
 
-/** Bottom input area. mode: 'plain' | 'quick' | 'selected' */
-export function InputArea({ mode = 'plain', links = {} }) {
+/**
+ * Bottom input area. mode: 'plain' | 'quick' | 'selected'.
+ * Full MVP: `field` = { value, onChange, onEnter } makes the box real; `replies` / `picked` drive quick replies.
+ */
+export function InputArea({ mode = 'plain', links = {}, field, replies, picked }) {
   const l = useL();
+  const sel = picked !== undefined ? picked : mode === 'selected';
   return (
     <div
+      data-guide="chat-input"
       style={{
         flexShrink: 0,
         boxSizing: 'border-box',
@@ -465,35 +518,50 @@ export function InputArea({ mode = 'plain', links = {} }) {
         background: C.white,
       }}
     >
-      {mode !== 'plain' && <QuickReplies selected={mode === 'selected'} links={links} />}
-      <TextField value={mode === 'selected' ? l('OK', '好的') : null} focused={mode === 'selected'} />
+      {mode !== 'plain' && <QuickReplies selected={sel} links={links} replies={replies} />}
+      {field ? (
+        <TextField {...field} />
+      ) : (
+        <TextField value={mode === 'selected' ? l('OK', '好的') : null} focused={mode === 'selected'} />
+      )}
       <ChatButtons links={links} />
     </div>
   );
 }
 
-export function ChatBase({ title = ['Daughter', '女儿'], messages = [], input = 'plain', links = {}, children }) {
+/** Chat page. `messages` are MSG keys (static frames); the Full MVP passes ready-made rows as `list`. */
+export function ChatBase({ title = ['Daughter', '女儿'], messages = [], list, input = 'plain', links = {}, inputProps, children }) {
+  const scroller = useRef(null);
+  const count = list ? list.length : 0;
+  useEffect(() => {
+    const el = scroller.current;
+    if (list && el) el.scrollTop = el.scrollHeight;
+  }, [count, list]);
   return (
     <Screen>
       <StatusBar />
       <NavBar title={title} back={links.back} home={links.home} />
       <div
+        ref={scroller}
+        className={list ? 'cm-scroll' : undefined}
         style={{
           flex: 1,
           minHeight: 0,
-          overflow: 'hidden',
+          overflow: list ? undefined : 'hidden',
+          overflowY: list ? 'auto' : undefined,
           boxSizing: 'border-box',
-          padding: '14px 16px 0 16px',
+          padding: list ? '14px 16px 14px 16px' : '14px 16px 0 16px',
           display: 'flex',
           flexDirection: 'column',
           gap: 12,
         }}
       >
-        {messages.map((m, i) => (
-          <MsgFragment key={i} k={m} />
-        ))}
+        {list ||
+          messages.map((m, i) => (
+            <MsgFragment key={i} k={m} />
+          ))}
       </div>
-      <InputArea mode={input} links={links} />
+      <InputArea mode={input} links={links} {...inputProps} />
       {children}
     </Screen>
   );
@@ -504,4 +572,4 @@ function MsgFragment({ k }) {
   return <El l={useL()} />;
 }
 
-export { Abs };
+export { Abs, Avatar };

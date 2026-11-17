@@ -31,8 +31,18 @@ button { font: inherit; color: inherit; cursor: pointer; }
 @keyframes cm-blink { to { opacity: 0.25; } }
 .cm-live .cm-wave > div { animation: cm-wave 0.9s ease-in-out infinite alternate; transform-origin: center; }
 @keyframes cm-wave { from { transform: scaleY(0.55); } to { transform: scaleY(1); } }
+/* Full MVP extras */
+.cm-screen input { user-select: text; -webkit-user-select: text; }
+.cm-input::placeholder { color: #9a9a9a; font-weight: 400; font-size: 18px; }
+.cm-scroll { scrollbar-width: none; overscroll-behavior: contain; }
+.cm-scroll::-webkit-scrollbar { display: none; }
+.cm-live .cm-drop { animation: cm-drop 0.22s ease-out; }
+@keyframes cm-drop { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
+.cm-live .cm-ring { animation: cm-ring 1.4s ease-out infinite; }
+@keyframes cm-ring { 0% { box-shadow: 0 0 0 0 rgba(7, 193, 96, 0.55); } 100% { box-shadow: 0 0 0 34px rgba(7, 193, 96, 0); } }
+
 @media (prefers-reduced-motion: reduce) {
-  .cm-live .cm-pointer, .cm-live .cm-rec-dot, .cm-live .cm-wave > div, .cm-enter { animation: none; }
+  .cm-live .cm-pointer, .cm-live .cm-rec-dot, .cm-live .cm-wave > div, .cm-enter, .cm-live .cm-drop, .cm-live .cm-ring { animation: none; }
 }
 
 /* ---------------- start screen ---------------- */
@@ -143,3 +153,29 @@ section { margin-bottom: 56px; }
 .lang-switch.dark { background: #2c2c2c; border-color: #2c2c2c; }
 .lang-switch.dark button { padding: 6px 9px; font-size: 13px; color: #bdbdbd; }
 .lang-switch.dark button:hover:not(.on) { color: #fff; }
+
+/* ---------------- tabs ---------------- */
+.tabs { display: inline-flex; gap: 4px; padding: 4px; margin: -16px 0 32px; border-radius: 16px; background: #fff; border: 1px solid var(--line); }
+.tabs button { border: 0; background: transparent; border-radius: 12px; padding: 10px 20px; font-size: 16px; font-weight: 600; color: var(--sub); transition: background 0.15s, color 0.15s; }
+.tabs button:hover:not(.on) { color: var(--ink); background: #f3f3f0; }
+.tabs button.on { background: var(--ink); color: #fff; }
+.tabs button:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
+
+/* ---------------- Full MVP tab ---------------- */
+.mvp { display: flex; gap: 48px; align-items: flex-start; justify-content: center; flex-wrap: wrap; }
+.mvp-stage { flex-shrink: 0; position: sticky; top: 24px; }
+.mvp-side { width: 380px; max-width: 100%; }
+.mvp-side h2 { margin: 0 0 8px; font-size: 26px; letter-spacing: -0.015em; }
+.mvp-lede { color: #444; line-height: 1.55; margin: 0 0 22px; font-size: 15px; }
+.mvp-k { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: #888; margin-bottom: 10px; }
+.mvp-try { margin: 0 0 26px; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; font-size: 15px; line-height: 1.45; }
+.mvp-try li::marker { color: var(--green); font-weight: 700; }
+.mvp-controls { background: #fff; border: 1px solid #ebebe8; border-radius: 16px; padding: 16px; }
+.mvp-switch { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; font-size: 14px; color: #555; line-height: 1.45; }
+.mvp-switch input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--green); flex-shrink: 0; }
+.mvp-switch b { display: block; color: var(--ink); font-size: 15px; }
+.mvp-btns { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 12px; }
+.mvp-btns .ctl { padding: 9px 14px; font-size: 14px; }
+.ctl.danger { color: #c4320a; }
+.ctl.danger:hover { border-color: #f0a58f; }
+.mvp-small { margin: 0; font-size: 13px; line-height: 1.5; color: var(--sub); }

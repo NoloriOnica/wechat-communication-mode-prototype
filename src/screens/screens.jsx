@@ -7,6 +7,7 @@ import {
   HomeBase, ContactBase, ChatBase, ContactTile, ContactActions, InputArea, PHOTOS, QUICK_REPLIES,
 } from './bases.jsx';
 import { NavBar, Screen, StatusBar } from '../components/ui.jsx';
+import { WECHAT_SCREENS } from './wechat.jsx';
 
 /* ---------- link maps shared by several frames ---------- */
 const HOME = { daughter: '02', messages: '03', voice: '04', video: '05', help: '10', settings: '18' };
@@ -29,18 +30,21 @@ function S03() {
   return <ChatBase messages={CHAT_FULL} links={{ ...CHAT, send: '07' }} />;
 }
 
-function S04() {
+export const clock = (sec) => `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
+
+/** Voice recorder sheet (04). The Full MVP passes the contact, a live time and handlers. */
+export function RecorderSheet({ name = ['Daughter', '女儿'], time = '0:12', cancel = '02', send = '06' }) {
   const bars = [10, 18, 30, 44, 26, 52, 36, 20, 40, 56, 30, 16, 34, 48, 24, 12, 28, 40, 18, 10];
   const l = useL();
   return (
-    <ContactBase>
+    <>
       <Dim op={0.45} />
       <Sheet y={421} pad="22px 24px 34px 24px" gap={16} align="center">
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, height: 27 }}>
           <div className="cm-rec-dot" style={{ width: 14, height: 14, borderRadius: 7, background: '#e5484d' }} />
-          <T w={700} s={22} lh={27} nowrap>{l('Recording to Daughter…', '正在录音（发给女儿）')}</T>
+          <T w={700} s={22} lh={27} nowrap>{l(`Recording to ${name[0]}…`, `正在录音（发给${name[1]}）`)}</T>
         </div>
-        <T w={700} s={60} lh={73} nowrap>0:12</T>
+        <T w={700} s={60} lh={73} nowrap>{time}</T>
         <div className="cm-wave" style={{ height: 56, display: 'flex', alignItems: 'center', gap: 5 }}>
           {bars.map((h, i) => (
             <div key={i} style={{ width: 6, height: h, borderRadius: 3, background: C.green, animationDelay: `${(i % 7) * 0.11}s` }} />
@@ -50,18 +54,28 @@ function S04() {
           {l('Speak now. Tap “Send” when you finish.', '请说话，说完请按“发送”。')}
         </T>
         <div style={{ display: 'flex', gap: 12 }}>
-          <Btn kind="neutral" icon="x" label="Cancel" cn="取消" w={167} to="02" />
-          <Btn kind="primary" icon="send" label="Send" cn="发送" w={167} to="06" />
+          <Btn kind="neutral" icon="x" label="Cancel" cn="取消" w={167} to={cancel} />
+          <Btn g="rec-send" kind="primary" icon="send" label="Send" cn="发送" w={167} to={send} />
         </div>
       </Sheet>
+    </>
+  );
+}
+
+function S04() {
+  return (
+    <ContactBase>
+      <RecorderSheet />
     </ContactBase>
   );
 }
 
-function S05() {
+/** Call confirmation card (05). */
+export function CallConfirm({ contact = { name: 'Daughter', cn: '女儿', photo: PHOTOS.daughter }, call, cancel = '02' }) {
   const l = useL();
+  const c = contact;
   return (
-    <ContactBase>
+    <>
       <Dim op={0.5} />
       <Abs
         x={20}
@@ -78,13 +92,21 @@ function S05() {
           gap: 16,
         }}
       >
-        <Photo src={PHOTOS.daughter} size={104} />
+        <Photo src={c.photo} size={104} />
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-          <T w={700} s={26} lh={31} nowrap>{l('Video call Daughter?', '给女儿打视频电话？')}</T>
+          <T w={700} s={26} lh={31} align="center">{l(`Video call ${c.name}?`, `给${c.cn}打视频电话？`)}</T>
         </div>
-        <Btn kind="primary" icon="video" label="Call" cn="拨打" w={305} />
-        <Btn kind="neutral" icon="x" label="Cancel" cn="取消" w={305} to="02" />
+        <Btn g="call-yes" kind="primary" icon="video" label="Call" cn="拨打" w={305} to={call} />
+        <Btn kind="neutral" icon="x" label="Cancel" cn="取消" w={305} to={cancel} />
       </Abs>
+    </>
+  );
+}
+
+function S05() {
+  return (
+    <ContactBase>
+      <CallConfirm />
     </ContactBase>
   );
 }
@@ -92,17 +114,17 @@ function S05() {
 function S06() {
   const l = useL();
   return (
-    <ChatBase messages={[...CHAT_FULL, 'voiceOut']} links={CHAT}>
+    <ChatBase messages={[...CHAT_FULL, 'voiceOut']} links={{ ...CHAT, send: '07' }}>
       <Banner title={l('Sent to Daughter', '已发送给女儿')} />
     </ChatBase>
   );
 }
 
-function S07() {
+/** “Message not sent” panel under the nav bar (07). */
+export function ErrorPanel({ retry = '22', title, message }) {
   const l = useL();
   return (
-    <ChatBase messages={[...CHAT_FULL, 'sundayFailed']} links={CHAT}>
-      <Abs
+    <Abs
         x={0}
         y={115}
         w={393}
@@ -120,17 +142,24 @@ function S07() {
         <Banner
           type="error"
           h={119}
-          title={l('Message not sent', '消息没有发出')}
-          message={l('No internet. Check Wi-Fi, then tap Try again.', '没有网络，请检查 Wi-Fi 后重试。')}
+          title={title || l('Message not sent', '消息没有发出')}
+          message={message || l('No internet. Check Wi-Fi, then tap Try again.', '没有网络，请检查 Wi-Fi 后重试。')}
         />
-        <Btn kind="primary" icon="retry" label="Try again" cn="重试" w={361} to="06" />
+        <Btn g="retry" kind="primary" icon="retry" label="Try again" cn="重试" w={361} to={retry} />
       </Abs>
+  );
+}
+
+function S07() {
+  return (
+    <ChatBase messages={[...CHAT_FULL, 'voiceOut', 'sundayFailed']} links={CHAT}>
+      <ErrorPanel />
     </ChatBase>
   );
 }
 
-/** Mini "screenshot" of the Home screen, as in the help request preview. */
-function MiniHome() {
+/** Mini "screenshot" of a screen (Home by default), as in the help request preview. */
+function MiniHome({ shot }) {
   return (
     <div
       style={{
@@ -144,16 +173,17 @@ function MiniHome() {
       }}
     >
       <div style={{ transform: 'scale(0.2)', transformOrigin: '0 0', pointerEvents: 'none' }}>
-        <HomeBase />
+        {shot || <HomeBase />}
       </div>
     </div>
   );
 }
 
-function S08() {
+/** “Ask Son for help?” sheet (08). `shot` is the screen to show in the screenshot. */
+export function AskSheet({ shot, send = '01', cancel = '10' }) {
   const l = useL();
   return (
-    <HomeBase>
+    <>
       <Dim op={0.45} />
       <Sheet y={347} pad="22px 24px 34px 24px" gap={16}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -170,7 +200,7 @@ function S08() {
             borderRadius: 16,
           }}
         >
-          <MiniHome />
+          <MiniHome shot={shot} />
           <div style={{ width: 228, display: 'flex', flexDirection: 'column', gap: 6 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Photo src={PHOTOS.son} size={32} />
@@ -181,9 +211,17 @@ function S08() {
             </T>
           </div>
         </div>
-        <Btn kind="primary" icon="send" label="Send request" cn="发送求助" w={345} to="01" />
-        <Btn kind="neutral" icon="x" label="Cancel" cn="取消" w={345} to="10" />
+        <Btn kind="primary" icon="send" label="Send request" cn="发送求助" w={345} to={send} />
+        <Btn kind="neutral" icon="x" label="Cancel" cn="取消" w={345} to={cancel} />
       </Sheet>
+    </>
+  );
+}
+
+function S08() {
+  return (
+    <HomeBase>
+      <AskSheet />
     </HomeBase>
   );
 }
@@ -225,14 +263,24 @@ function S09() {
   );
 }
 
+/** 22: the failed text went through after “Try again”. */
+function S22() {
+  const l = useL();
+  return (
+    <ChatBase messages={[...CHAT_FULL, 'voiceOut', 'sunday']} links={CHAT}>
+      <Banner title={l('Sent to Daughter', '已发送给女儿')} />
+    </ChatBase>
+  );
+}
+
 /* ---------- 10–14: Help menu + guided walkthrough ---------- */
-const TOPICS = [
-  { icon: 'message', en: 'Send a message', cn: '怎么发消息', to: '11' },
-  { icon: 'mic', en: 'Send a voice message', cn: '怎么发语音' },
-  { icon: 'video', en: 'Make a video call', cn: '怎么打视频电话' },
-  { icon: 'phone', en: 'Answer a call', cn: '怎么接电话' },
-  { icon: 'text-size', en: 'Make text bigger', cn: '怎么放大字体' },
-  { icon: 'home', en: 'Go back to Home', cn: '怎么回到主页', to: '01' },
+export const TOPICS = [
+  { id: 'message', icon: 'message', en: 'Send a message', cn: '怎么发消息', to: '11' },
+  { id: 'voice', icon: 'mic', en: 'Send a voice message', cn: '怎么发语音' },
+  { id: 'video', icon: 'video', en: 'Make a video call', cn: '怎么打视频电话' },
+  { id: 'answer', icon: 'phone', en: 'Answer a call', cn: '怎么接电话' },
+  { id: 'text', icon: 'text-size', en: 'Make text bigger', cn: '怎么放大字体' },
+  { id: 'home', icon: 'home', en: 'Go back to Home', cn: '怎么回到主页', to: '01' },
 ];
 
 function HelpTopic({ icon, en, cn, selected, to }) {
@@ -276,12 +324,16 @@ function HelpTopic({ icon, en, cn, selected, to }) {
   );
 }
 
-function S10() {
-  const sayWhat = useHot(null);
+/**
+ * Help menu sheet (10). The Full MVP passes `topic(id)` for every topic plus say / ask / close handlers.
+ * `selected` is the highlighted topic (the Figma frame shows the first one selected).
+ */
+export function HelpSheet({ topic, say = null, ask = '08', close = '01', selected = 0 }) {
+  const sayWhat = useHot(say);
   const l = useL();
   return (
-    <HomeBase>
-      <Dim op={0.45} to="01" />
+    <>
+      <Dim op={0.45} to={close} />
       <Sheet y={117} pad="22px 24px 30px 24px" gap={12}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <T w={700} s={24} lh={29} nowrap>{l('What do you need help with?', '需要什么帮助？')}</T>
@@ -306,14 +358,22 @@ function S10() {
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {TOPICS.map((t, i) => (
-            <HelpTopic key={t.en} {...t} selected={i === 0} />
+            <HelpTopic key={t.en} {...t} to={topic ? () => topic(t.id) : t.to} selected={i === selected} />
           ))}
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <Btn kind="secondary" icon="users" label="Ask family" cn="家人帮忙" w={170} pl={14} gap={10} to="08" />
-          <Btn kind="neutral" icon="x" label="Close" cn="关闭" w={166} pl={14} gap={10} to="01" />
+          <Btn kind="secondary" icon="users" label="Ask family" cn="家人帮忙" w={170} pl={14} gap={10} to={ask} />
+          <Btn kind="neutral" icon="x" label="Close" cn="关闭" w={166} pl={14} gap={10} to={close} />
         </div>
       </Sheet>
+    </>
+  );
+}
+
+function S10() {
+  return (
+    <HomeBase>
+      <HelpSheet />
     </HomeBase>
   );
 }
@@ -378,14 +438,15 @@ function S13() {
   );
 }
 
-function S14() {
+/** “Well done!” card that ends a guide (14). */
+export function DoneCard({ y = 179, text = ['You sent a message by yourself.', '你自己发出了消息。'], done = '03', again = '11' }) {
   const l = useL();
   return (
-    <ChatBase messages={[...CHAT_FULL, 'sunday']}>
+    <>
       <Dim op={0.5} />
       <Abs
         x={20}
-        y={179}
+        y={y}
         w={353}
         style={{
           background: C.white,
@@ -412,13 +473,21 @@ function S14() {
           <Icon name="check" size={56} color={C.green} />
         </div>
         <T w={700} s={30} lh={36} nowrap>{l('Well done!', '做得好！')}</T>
-        <T w={500} s={20} lh={24} align="center" nowrap>{l('You sent a message by yourself.', '你自己发出了消息。')}</T>
-        <Btn kind="primary" icon="check" label="Done" cn="完成" w={305} to="03" />
-        <Btn kind="secondary" icon="retry" label="Practise again" cn="再练一次" w={305} to="11" />
+        <T w={500} s={20} lh={24} align="center" nowrap>{l(...text)}</T>
+        <Btn g="guide-done" kind="primary" icon="check" label="Done" cn="完成" w={305} to={done} />
+        <Btn kind="secondary" icon="retry" label="Practise again" cn="再练一次" w={305} to={again} />
         <T s={15} lh={18} c={C.sub} align="center" nowrap>
           {l('You can find this guide again under Help.', '在“帮助”里可以再看这个教学。')}
         </T>
       </Abs>
+    </>
+  );
+}
+
+function S14() {
+  return (
+    <ChatBase messages={[...CHAT_FULL, 'sunday']}>
+      <DoneCard />
     </ChatBase>
   );
 }
@@ -445,9 +514,12 @@ function S17() {
   );
 }
 
-function SquareBtn({ icon, color = C.text, bg = C.chip, w = 48, h = 48, size = 24 }) {
+function SquareBtn({ icon, color = C.text, bg = C.chip, w = 48, h = 48, size = 24, to, label }) {
+  const hot = useHot(to);
   return (
     <div
+      {...hot}
+      aria-label={label}
       style={{
         width: w,
         height: h,
@@ -464,16 +536,26 @@ function SquareBtn({ icon, color = C.text, bg = C.chip, w = 48, h = 48, size = 2
   );
 }
 
-function S18() {
+/**
+ * Quick reply editor (18). The Full MVP passes the live list and handlers:
+ * on = { up(i), down(i), edit(i), del(i), add, back, home }.
+ */
+export function ReplyEditor({ replies = QUICK_REPLIES, on = {}, max = 6, children }) {
   const l = useL();
+  const full = replies.length >= max;
+  const fn = (f, i) => (f ? () => f(i) : undefined);
   return (
     <Screen>
       <StatusBar />
-      <NavBar title={['Quick replies', '快捷回复']} back="15" home="01" />
+      <NavBar title={['Quick replies', '快捷回复']} back={on.back || '15'} home={on.home || '01'} />
       <div
+        className={on.back ? 'cm-scroll' : undefined}
         style={{
+          flex: on.back ? 1 : undefined,
+          minHeight: 0,
+          overflowY: on.back ? 'auto' : undefined,
           boxSizing: 'border-box',
-          padding: '16px 16px 0 16px',
+          padding: on.back ? '16px 16px 30px 16px' : '16px 16px 0 16px',
           display: 'flex',
           flexDirection: 'column',
           gap: 10,
@@ -483,10 +565,11 @@ function S18() {
           <T w={700} s={24} lh={29} nowrap>{l('Your quick replies', '我的快捷回复')}</T>
           <T s={16} lh={19} c={C.sub} nowrap>{l('Shown in every chat, up to 6', '在每个聊天中显示，最多6条')}</T>
         </div>
-        {QUICK_REPLIES.map((r, i) => (
+        {replies.map((r, i) => (
           <div
-            key={r.en}
+            key={r.en + i}
             style={{
+              flexShrink: 0,
               height: 106,
               boxSizing: 'border-box',
               padding: '10px 12px 10px 10px',
@@ -498,21 +581,45 @@ function S18() {
             }}
           >
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <SquareBtn icon="chevron-up" h={40} color={i === 0 ? '#c4c4c4' : C.text} />
-              <SquareBtn icon="chevron-down" h={40} color={i === QUICK_REPLIES.length - 1 ? '#c4c4c4' : C.text} />
+              <SquareBtn icon="chevron-up" h={40} color={i === 0 ? '#c4c4c4' : C.text} to={i > 0 ? fn(on.up, i) : undefined} label="Move up" />
+              <SquareBtn
+                icon="chevron-down"
+                h={40}
+                color={i === replies.length - 1 ? '#c4c4c4' : C.text}
+                to={i < replies.length - 1 ? fn(on.down, i) : undefined}
+                label="Move down"
+              />
             </div>
-            <div style={{ flex: 1 }}>
-              <T w={600} s={20} lh={24} nowrap>{l(r.en, r.cn)}</T>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <T w={600} s={20} lh={24}>{l(r.en, r.cn)}</T>
             </div>
-            <SquareBtn icon="pencil" />
-            <SquareBtn icon="trash" color="#d92d20" bg="#fdecec" />
+            <SquareBtn icon="pencil" to={fn(on.edit, i)} label="Edit" />
+            <SquareBtn icon="trash" color="#d92d20" bg="#fdecec" to={fn(on.del, i)} label="Delete" />
           </div>
         ))}
-        <T s={16} lh={19} c={C.sub} nowrap>{l('4 of 6 replies', '已有4条，最多6条')}</T>
-        <Btn kind="secondary" icon="plus" label="Add a reply" cn="添加回复" w={361} />
+        <T s={16} lh={19} c={C.sub} nowrap>
+          {full && on.add
+            ? l(`${max} of ${max} replies – delete one to add a new one`, `已有${max}条，删除一条才能添加`)
+            : l(`${replies.length} of ${max} replies`, `已有${replies.length}条，最多${max}条`)}
+        </T>
+        <Btn
+          kind="secondary"
+          icon="plus"
+          label="Add a reply"
+          cn="添加回复"
+          w={361}
+          to={full ? undefined : on.add}
+          style={full && on.add ? { opacity: 0.4 } : undefined}
+
+        />
       </div>
+      {children}
     </Screen>
   );
+}
+
+function S18() {
+  return <ReplyEditor />;
 }
 
 /* ---------- registry ---------- */
@@ -535,6 +642,10 @@ export const SCREENS = {
   '16': { C: S16, title: 'Reply chosen – check, then Send', refs: 'US26 · FR-25, NFR-11', caption: 'Tapping “OK” only puts it in the message box (shown in dark text). The user can still edit or clear it. Nothing is sent until they tap Send.' },
   '17': { C: S17, title: 'Quick reply sent', refs: 'US26 · FR-25, FR-17', caption: 'The reply appears in the chat and the usual “Sent to Daughter” banner confirms it worked, just like a typed message.' },
   '18': { C: S18, title: 'Edit quick replies (Settings)', refs: 'US27 · FR-27', caption: 'The user or a family helper can add, edit, remove and reorder replies (up to 6). Reordering uses Up / Down buttons instead of dragging, which is hard with a hand tremor.' },
+  '19': { C: WECHAT_SCREENS['19'], title: 'Standard WeChat (before Lite mode)', refs: 'Entry point · standard WeChat', caption: 'This is the normal WeChat look: small text, a dense chat list and icon-only tabs. Lite mode is switched on from here, through Me → Settings.' },
+  '20': { C: WECHAT_SCREENS['20'], title: 'Settings – Lite mode toggle', refs: 'US1 · F1 · FR-1.1', caption: 'Lite mode is one toggle in Settings, with a plain description of what it changes, so a family member or the user can switch it on without searching through menus.' },
+  '21': { C: WECHAT_SCREENS['21'], title: 'Confirm switching to Lite mode', refs: 'US1 · F1 · FR-1.1', caption: 'A preview of the Lite mode home screen and four short points explain the change. Chats and contacts stay the same, and the user can switch back in Settings at any time.' },
+  '22': { C: S22, title: '“Sent” after Try again', refs: 'US5, US13 · F3 · FR-3.2, FR-3.3', caption: 'After “Try again” the message goes through: the warning icon is gone and the same green “Sent to Daughter” banner confirms it.' },
 };
 
 /* Chinese titles, captions and (where the English has words) refs */
@@ -556,6 +667,10 @@ const CN = {
   '15': ['带快捷回复的聊天', '输入框上方有四个大的回复按钮，打字困难的用户点两下就能回复。点“编辑”可以打开回复列表。'],
   '16': ['选好回复，确认后发送', '点“好的”只会把它放进输入框（深色文字）。用户仍可以修改或清除，点“发送”之前不会发出。'],
   '17': ['快捷回复已发送', '回复出现在聊天中，和打字发送的消息一样，会显示“已发送给女儿”横幅确认。'],
+  '19': ['普通微信（切换前）', '这是普通微信的样子：字小、聊天列表密集、底部只有图标标签。从这里经过“我 → 设置”打开简易模式。', '入口 · 普通微信'],
+  '20': ['设置：简易模式开关', '简易模式只是设置里的一个开关，并用简单的话说明会改变什么，家人或用户自己不用翻找菜单就能打开。'],
+  '21': ['确认切换到简易模式', '预览简易模式的主页，并用四句话说明变化。聊天记录和联系人不变，随时可以在设置里切换回来。'],
+  '22': ['重试后“已发送”', '点“重试”后消息发出：警告图标消失，同样的绿色“已发送给女儿”横幅确认发送成功。'],
   '18': ['编辑快捷回复（设置）', '用户或家人可以添加、编辑、删除和排序回复（最多6条）。排序用“上移/下移”按钮代替拖动，手抖的用户也能轻松操作。'],
 };
 for (const id in CN) [SCREENS[id].titleCn, SCREENS[id].captionCn, SCREENS[id].refsCn = SCREENS[id].refs] = CN[id];
